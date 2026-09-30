@@ -113,7 +113,8 @@ section{display:flex;flex-direction:column;gap:28px;scroll-margin-top:72px}
 .tile li{display:flex;gap:10px;align-items:flex-start}
 .tile li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:8px;flex:none}
 .s6{grid-column:span 6}.s4{grid-column:span 4}.s3{grid-column:span 3}.s2{grid-column:span 2}
-@media (max-width:860px){.s4,.s3,.s2{grid-column:span 6}}
+@media (max-width:860px){.s4{grid-column:span 6}.s3,.s2{grid-column:span 3}.s2.t6{grid-column:span 6}}
+@media (max-width:560px){.s4,.s3,.s2,.s2.t6{grid-column:span 6}}
 .big{font-size:clamp(48px,6vw,72px);font-weight:700;letter-spacing:-.05em;line-height:1}
 .mixbar{display:flex;height:14px;border-radius:999px;overflow:hidden;gap:3px;margin-top:6px}
 .mixbar span{display:block}
@@ -341,6 +342,58 @@ details.dt .etable{margin-top:12px;background:transparent}
 .notesOut{background:var(--accent-tint);border-radius:var(--r-md);padding:16px 18px;font-size:15px;white-space:pre-wrap}
 .notesOut b{display:block;font-size:13px;color:var(--accent);margin-bottom:4px}
 
+/* Responsive: tablet and phone */
+.tbest{display:none}
+.chart[data-still] *{animation:none!important}
+@media (max-width:860px){
+  main{gap:96px}
+  .hero{padding-top:64px}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  main{gap:72px;padding-block:0 72px}
+  section{gap:22px}
+  .hero{padding-top:44px;gap:16px}
+  .upnext{margin-top:16px}
+  .tile,.tracks,.chartTile,.entry{padding:20px}
+  .kpi{padding:16px;border-radius:22px}
+  .tile{border-radius:24px}
+  .calcard{border-radius:24px}
+  .calhead h3{font-size:26px}
+  .tbest{display:block;color:var(--fg);font-weight:500}
+  .pipe{grid-template-columns:repeat(5,minmax(0,1fr));overflow:visible;gap:6px}
+  .pcell{padding:10px 6px;align-items:center;text-align:center;border-radius:12px}
+  .pcell .pn{font-size:22px}
+  .pcell .pl{font-size:11px;justify-content:center}
+  .seg button{padding:8px 14px}
+  .chips button{padding:9px 15px}
+  .rowbtn{grid-template-columns:40px minmax(0,1fr) auto;gap:12px;padding:14px}
+  .rowbtn .tx strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3}
+  .rowbtn .chev{display:none}
+  .sheet-body{padding:20px 16px 28px;gap:18px}
+  .schrow{grid-template-columns:1fr}
+  .schrow .tm{text-align:left;padding-left:19px}
+  .nextstep .btn{width:100%}
+  .actions .btn{flex:1}
+  .dateTile{width:76px;border-radius:18px}
+  .dateTile .dd{font-size:40px}
+  .mixlegend{grid-template-columns:1fr 1fr}
+  .kpi .dl{font-size:12px}
+  /* Entry form becomes one card per platform */
+  #entryTable{background:transparent;overflow:visible}
+  #entryTable table{min-width:0;display:block}
+  #entryTable thead{display:none}
+  #entryTable tbody{display:flex;flex-direction:column;gap:12px}
+  #entryTable tr{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--surface-2);border-radius:16px;padding:14px}
+  #entryTable td{border:0;padding:0;display:flex;flex-direction:column;gap:5px}
+  #entryTable td:first-child{grid-column:1/-1;flex-direction:row;align-items:center}
+  #entryTable td::before{content:attr(data-label);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  #entryTable td:first-child::before{content:none}
+  #entryTable input{min-width:0;padding:10px 12px;font-size:16px}
+  .entry .actions .btn{flex:0 0 100%}
+}
+@media (max-width:380px){.kpis{grid-template-columns:1fr 1fr;gap:10px}.kpi .vl{font-size:28px}.pcell .pl{font-size:10px}}
+
 /* Motion. Everything is visible at rest; animations only play with motion allowed */
 .burst{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:60}
 @media (prefers-reduced-motion:no-preference){
@@ -403,17 +456,20 @@ details.dt .etable{margin-top:12px;background:transparent}
   .btn,.cta,.seg button,.chips button,.st,.rowbtn,.themeBtn,.cell.has,.link{transition:transform .18s var(--spring),background-color .2s,box-shadow .2s}
   .btn:active,.cta:active,.seg button:active,.chips button:active,.st:active,.themeBtn:active,.cell.has:active{transform:scale(.96)}
   .rowbtn:active{transform:scale(.99)}
-  .btn:hover{box-shadow:0 4px 14px var(--accent-tint)}
   .themeBtn svg{transition:rotate .5s var(--spring)}
-  .themeBtn:hover svg{rotate:25deg}
   .kpi,.chartTile,.upnext{transition:transform .25s var(--ease),box-shadow .25s}
-  .kpi:hover,.chartTile:hover,.upnext:hover{transform:translateY(-3px);box-shadow:0 2px 6px rgba(0,0,0,.05),0 18px 44px rgba(0,0,0,.1)}
+  @media (hover:hover){
+    .btn:hover{box-shadow:0 4px 14px var(--accent-tint)}
+    .themeBtn:hover svg{rotate:25deg}
+    .kpi:hover,.chartTile:hover,.upnext:hover{transform:translateY(-3px);box-shadow:0 2px 6px rgba(0,0,0,.05),0 18px 44px rgba(0,0,0,.1)}
+  }
   .burst{animation:fly .8s var(--ease) forwards}
 }
 
 footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24px 48px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;z-index:50}
-@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}.tile,.rowbtn,.cell{transition:background .15s,transform .2s}.tile:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}.tile,.rowbtn,.cell{transition:background .15s,transform .2s}}
+@media (prefers-reduced-motion:no-preference) and (hover:hover){.tile:hover{transform:translateY(-2px)}}
 </style>
 
 <nav class="nav" aria-label="Sections">
@@ -451,10 +507,9 @@ footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24p
           <div><b class="num"><i style="background:var(--med)"></i>15%</b><strong>People &amp; trust</strong><p>Drivers, reviews, safety and milestones.</p></div>
         </div>
       </div>
-      <div class="tile s2"><span class="big num">5<span style="font-size:.45em;letter-spacing:-.02em"> am</span></span><h3>Reminder at shift start</h3><p>The day before every post, you get a notification at 5:00 am with what to film or design that day.</p></div>
+      <div class="tile s2 t6"><span class="big num">5<span style="font-size:.45em;letter-spacing:-.02em"> am</span></span><h3>Reminder at shift start</h3><p>The day before every post, you get a notification at 5:00 am with what to film or design that day.</p></div>
       <div class="tile s2"><h3>Every week</h3><ul><li>2 Reels on Instagram and Facebook</li><li>1 carousel, re-cut as a LinkedIn PDF</li><li>2 LinkedIn posts</li><li>1 Google Business post</li><li>3–5 Pinterest pins</li></ul></div>
       <div class="tile s2"><h3>Film once a week</h3><ul><li>One loading time-lapse</li><li>One truck leaving or arriving</li><li>One 20-second staff clip</li><li>5–10 clean truck photos</li></ul></div>
-      <div class="tile s3"><h3>SEO in every post</h3><ul><li>Service and city keyword in the first line</li><li>Link to the service page, not the homepage</li><li>Keyword file names, like heavy-haulage-sydney.jpg</li><li>Location tag on every post</li></ul></div>
       <div class="tile s6"><h3>From idea to live, in five steps</h3><p>Every post moves through the same steps. Mark each step in the post's brief, and the calendar shows what's stuck.</p>
         <ol class="flow">
           <li><span class="stdot">1</span><b>Plan</b><small>Brief is agreed. You get the 5 am reminder the day before.</small></li>
@@ -464,6 +519,7 @@ footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24p
           <li><span class="stdot">5</span><b>Posted</b><small>Check it went live, reply to comments in the first hour.</small></li>
         </ol>
       </div>
+      <div class="tile s3"><h3>SEO in every post</h3><ul><li>Service and city keyword in the first line</li><li>Link to the service page, not the homepage</li><li>Keyword file names, like heavy-haulage-sydney.jpg</li><li>Location tag on every post</li></ul></div>
       <div class="tile s3"><h3>Reuse everything</h3><ul><li>Reels go to Instagram, Facebook and YouTube Shorts</li><li>Carousels become LinkedIn PDFs and Pinterest pins</li><li>The best post each month becomes a blog article</li><li>Rewrite the first line for each platform</li></ul></div>
     </div>
   </section>
@@ -889,14 +945,14 @@ function renderUpNext(){
 }
 function renderTracks(){
   const rows=[
-    {n:"LinkedIn",k:"LinkedIn",days:"Tue · Wed · Thu",w:[[7.5,9,"7:30–9"],[12,13,"12–1"]],job:"Leads, trust"},
-    {n:"Instagram",k:"Instagram",days:"Wed · Fri · Sun",w:[[12,13,"12–1"],[18.5,20.5,"6:30–8:30"]],job:"Reach, followers"},
-    {n:"Facebook",k:"Facebook",days:"Mon · Wed · Fri",w:[[12,13,"12–1"],[19,20,"7–8"]],job:"Reach, enquiries"},
-    {n:"Pinterest",k:"Pinterest",days:"Sat · Sun",w:[[20,22,"8–10 pm"]],job:"Long-term traffic"},
-    {n:"Google Business",k:"Google Business",days:"Weekly, any day",w:[[6,21,"Any time",1]],job:"Local SEO, calls"}
+    {n:"LinkedIn",k:"LinkedIn",days:"Tue · Wed · Thu",w:[[7.5,9,"7:30–9"],[12,13,"12–1"]],job:"Leads, trust",best:"7:30–9 am · 12–1 pm"},
+    {n:"Instagram",k:"Instagram",days:"Wed · Fri · Sun",w:[[12,13,"12–1"],[18.5,20.5,"6:30–8:30"]],job:"Reach, followers",best:"12–1 pm · 6:30–8:30 pm"},
+    {n:"Facebook",k:"Facebook",days:"Mon · Wed · Fri",w:[[12,13,"12–1"],[19,20,"7–8"]],job:"Reach, enquiries",best:"12–1 pm · 7–8 pm"},
+    {n:"Pinterest",k:"Pinterest",days:"Sat · Sun",w:[[20,22,"8–10 pm"]],job:"Long-term traffic",best:"8–10 pm"},
+    {n:"Google Business",k:"Google Business",days:"Weekly, any day",w:[[6,21,"Any time",1]],job:"Local SEO, calls",best:"Any time, once a week"}
   ];
   const S=4,E=23,pos=h=>((h-S)/(E-S)*100).toFixed(2)+"%",wid=(a,b)=>((b-a)/(E-S)*100).toFixed(2)+"%";
-  let h=rows.map(r=>`<div class="trow"><div class="tname"><b><i style="background:var(${PL[r.k]})"></i>${r.n}</b><small>${r.days} · ${r.job}</small></div>
+  let h=rows.map(r=>`<div class="trow"><div class="tname"><b><i style="background:var(${PL[r.k]})"></i>${r.n}</b><small>${r.days} · ${r.job}</small><small class="tbest">Best: ${r.best}</small></div>
     <div class="track"><span class="shift" style="left:${pos(5)}" title="Shift starts 5 am"></span>${r.w.map(w=>`<span class="win${w[3]?" soft":""}" style="left:${pos(w[0])};width:${wid(w[0],w[1])}">${w[2]}</span>`).join("")}</div></div>`).join("");
   const ticks=[[6,"6am"],[9,"9am"],[12,"12pm"],[15,"3pm"],[18,"6pm"],[21,"9pm"]];
   h+=`<div class="ticks"><span class="pad"></span><div class="scale">${ticks.map(t=>`<span style="left:${pos(t[0])}">${t[1]}</span>`).join("")}</div></div>
@@ -1049,7 +1105,7 @@ function lineChart(){
   const series=AP.filter(p=>ms.some(m=>pv(d,m,p,"followers")!=null));
   document.getElementById("fLegend").innerHTML=series.map(p=>`<span><i style="background:${css(SC[p])}"></i>${p}</span>`).join("");
   if(!ms.length||!series.length){el.innerHTML=`<p class="empty">No follower numbers yet.</p>`;return}
-  const W=680,H=260,L=44,R=108,T=14,B=28,iw=W-L-R,ih=H-T-B;
+  const W=Math.max(280,Math.round(el.clientWidth||680)),narrow=W<520,H=narrow?220:260,L=40,R=narrow?14:108,T=14,B=28,iw=W-L-R,ih=H-T-B;
   const max=niceMax(Math.max(...series.flatMap(p=>ms.map(m=>pv(d,m,p,"followers")||0))));
   const x=i=>ms.length===1?L+iw/2:L+i*(iw/(ms.length-1)),y=v=>T+ih-(v/max)*ih;
   let g="";
@@ -1064,9 +1120,9 @@ function lineChart(){
     const last=pts[pts.length-1];labels.push({p,x:x(last[0]),y:y(last[1]),v:last[1]});
   });
   labels.sort((a,b)=>a.y-b.y);for(let i=1;i<labels.length;i++)if(labels[i].y-labels[i-1].y<15)labels[i].y=labels[i-1].y+15;
-  const lab=labels.map(l=>`<text x="${l.x+10}" y="${l.y+4}" class="lbl">${l.p==="Google Business"?"Google":l.p} ${fmtN(l.v)}</text>`).join("");
+  const lab=narrow?"":labels.map(l=>`<text x="${l.x+10}" y="${l.y+4}" class="lbl">${l.p==="Google Business"?"Google":l.p} ${fmtN(l.v)}</text>`).join("");
   const band=ms.length===1?iw:iw/(ms.length-1);
-  const hits=ms.map((m,i)=>`<rect x="${x(i)-band/2}" y="${T}" width="${band}" height="${ih}" fill="transparent" data-i="${i}" tabindex="0" aria-label="${ML[m]} followers"/>`).join("");
+  const hits=ms.map((m,i)=>{const a=Math.max(0,x(i)-band/2),b=Math.min(W,x(i)+band/2);return `<rect x="${a}" y="${T}" width="${b-a}" height="${ih}" fill="transparent" data-i="${i}" tabindex="0" aria-label="${ML[m]} followers"/>`}).join("");
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Followers by platform, ${ms.map(m=>MS[m]).join(" to ")}">${g}<line id="fX" x1="0" x2="0" y1="${T}" y2="${T+ih}" stroke="var(--axis)" stroke-width="1" visibility="hidden"/>${lines}${dots}${lab}${hits}</svg><div class="tip" hidden></div>`;
   const svg=el.querySelector("svg"),tip=el.querySelector(".tip"),cx=el.querySelector("#fX");
   const show=i=>{const m=ms[i],px=x(i);cx.setAttribute("x1",px);cx.setAttribute("x2",px);cx.setAttribute("visibility","visible");
@@ -1079,7 +1135,7 @@ function lineChart(){
 function barChart(id,field,label){
   const el=document.getElementById(id),{d}=ds(),ms=monthsWith(d).filter(m=>tot(d,m,field)!=null);
   if(!ms.length){el.innerHTML=`<p class="empty">No ${label.toLowerCase()} numbers yet.</p>`;return}
-  const W=360,H=230,L=40,R=8,T=22,B=26,iw=W-L-R,ih=H-T-B,max=niceMax(Math.max(...ms.map(m=>tot(d,m,field))));
+  const W=Math.max(240,Math.round(el.clientWidth||360)),H=230,L=40,R=8,T=22,B=26,iw=W-L-R,ih=H-T-B,max=niceMax(Math.max(...ms.map(m=>tot(d,m,field))));
   const bandW=iw/Math.max(ms.length,3),bw=Math.min(40,bandW*.55),y=v=>T+ih-(v/max)*ih;
   let g="";for(let t=0;t<=4;t++){const v=max*t/4,yy=y(v);g+=`<line x1="${L}" x2="${L+iw}" y1="${yy}" y2="${yy}" stroke="var(${t?"--grid":"--axis"})"/><text x="${L-6}" y="${yy+4}" text-anchor="end" class="num">${fmtN(v)}</text>`}
   let bars="";
@@ -1105,12 +1161,20 @@ function renderStatus(){
 function fillForm(){
   const m=metrics[aMonth],P=(m&&m.platforms)||{};
   document.getElementById("entryTitle").textContent=`Enter numbers for ${ML[aMonth]}`;
-  document.getElementById("entryTable").innerHTML=`<table><thead><tr><th>Platform</th>${FL.map(f=>`<th>${f[1]}</th>`).join("")}</tr></thead><tbody>${AP.map(p=>`<tr><td><i style="background:${css(SC[p])}"></i>${p}</td>${FL.map(f=>{const v=P[p]&&num(P[p][f[0]]);return `<td><input type="number" min="0" step="1" inputmode="numeric" id="in-${p.replace(/\s/g,"")}-${f[0]}" data-p="${p}" data-f="${f[0]}" value="${v==null?"":v}" placeholder="—" aria-label="${p} ${f[1]}"></td>`}).join("")}</tr>`).join("")}</tbody></table>`;
+  document.getElementById("entryTable").innerHTML=`<table><thead><tr><th>Platform</th>${FL.map(f=>`<th>${f[1]}</th>`).join("")}</tr></thead><tbody>${AP.map(p=>`<tr><td><i style="background:${css(SC[p])}"></i>${p}</td>${FL.map(f=>{const v=P[p]&&num(P[p][f[0]]);return `<td data-label="${f[1]}"><input type="number" min="0" step="1" inputmode="numeric" id="in-${p.replace(/\s/g,"")}-${f[0]}" data-p="${p}" data-f="${f[0]}" value="${v==null?"":v}" placeholder="—" aria-label="${p} ${f[1]}"></td>`}).join("")}</tr>`).join("")}</tbody></table>`;
   document.getElementById("aNotes").value=(m&&m.notes)||"";
   document.getElementById("entryMsg").textContent=m&&m.updatedAt?`Last saved ${new Date(m.updatedAt).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}`:"";
   dirty=false;
 }
-function renderAnalytics(){renderStatus();renderKpis();lineChart();barChart("cReach","reach","Reach");barChart("cLeads","leads","Leads");renderAllTable()}
+function renderCharts(){lineChart();barChart("cReach","reach","Reach");barChart("cLeads","leads","Leads")}
+function renderAnalytics(){renderStatus();renderKpis();document.querySelectorAll(".chart").forEach(c=>delete c.dataset.still);renderCharts();renderAllTable()}
+(function(){
+  if(!("ResizeObserver" in window))return;
+  const last={};let t;
+  const ro=new ResizeObserver(es=>{let changed=false;es.forEach(e=>{const w=Math.round(e.contentRect.width);if(Math.abs((last[e.target.id]||0)-w)>8){last[e.target.id]=w;changed=true}});
+    if(!changed)return;clearTimeout(t);t=setTimeout(()=>{document.querySelectorAll(".chart").forEach(c=>c.dataset.still="1");renderCharts()},120)});
+  ["cFollowers","cReach","cLeads"].forEach(id=>{const el=document.getElementById(id);last[id]=Math.round(el.clientWidth);ro.observe(el)});
+})();
 (function(){
   const el=document.getElementById("aMonthSeg");
   el.innerHTML=MK.map(k=>`<button type="button" data-v="${k}" aria-pressed="${k===aMonth}">${MS[k]}</button>`).join("");
