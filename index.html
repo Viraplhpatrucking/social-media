@@ -1,512 +1,941 @@
 <title>Alpha Trucking Social Calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: highway-sign header, then a route: strategy → times → pillars → month grid → post-by-post run sheet → Nov/Dec → grows vs doesn't */
+/* Layout: Apple-style product page. Glass nav → centred hero with "Up next" card → bento strategy → posting-time tracks → month calendar + grouped list → sheet for each brief */
 :root{
-  --bg:#f3f5f2;
+  --bg:#f5f5f7;
   --surface:#ffffff;
-  --fg:#16201b;
-  --muted:#5b6961;
-  --line:#d9e0db;
-  --sign:#0b6b3a;        /* road-sign green */
-  --sign-fg:#ffffff;
-  --hivis:#f2b705;       /* hi-vis amber */
-  --hivis-ink:#3d2e00;
-  --high:#0b6b3a; --high-bg:#e1f1e7;
-  --med:#8a5a00;  --med-bg:#fbefd0;
-  --low:#a33a2b;  --low-bg:#f8e2de;
-  --chip:#eef2ef;
-  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
-  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --surface-2:#f5f5f7;
+  --fg:#1d1d1f;
+  --muted:#6e6e73;
+  --line:rgba(0,0,0,.09);
+  --accent:#0071e3;
+  --accent-fg:#ffffff;
+  --accent-tint:rgba(0,113,227,.1);
+  --glass:rgba(255,255,255,.72);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.06);
+  --high:#34c759; --high-ink:#1f7a37; --high-tint:rgba(52,199,89,.14);
+  --med:#ff9f0a;  --med-ink:#a35a00;  --med-tint:rgba(255,159,10,.16);
+  --low:#ff3b30;  --low-ink:#c42b22;  --low-tint:rgba(255,59,48,.12);
+  --indigo:#5856d6; --teal:#30b0c7;
+  --p-li:#0a66c2; --p-ig:#e1306c; --p-fb:#1877f2; --p-pi:#e60023; --p-gb:#34a853;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --r-lg:28px; --r-md:18px; --r-sm:12px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#101512;--surface:#18201b;--fg:#e6ece8;--muted:#9aa8a0;--line:#2b3630;
-  --sign:#12824a;--sign-fg:#ffffff;--hivis:#f2b705;--hivis-ink:#2a2000;
-  --high:#6fd39b;--high-bg:#16321f;--med:#f0c25a;--med-bg:#352a0f;--low:#f08a7a;--low-bg:#3a1c18;--chip:#222b26;color-scheme:dark}}
+  --bg:#000000;--surface:#1c1c1e;--surface-2:#2c2c2e;--fg:#f5f5f7;--muted:#98989d;--line:rgba(255,255,255,.1);
+  --accent:#2997ff;--accent-fg:#ffffff;--accent-tint:rgba(41,151,255,.16);--glass:rgba(22,22,23,.72);--shadow:0 0 0 1px rgba(255,255,255,.06);
+  --high:#30d158;--high-ink:#30d158;--high-tint:rgba(48,209,88,.16);--med:#ff9f0a;--med-ink:#ffb340;--med-tint:rgba(255,159,10,.18);
+  --low:#ff453a;--low-ink:#ff6961;--low-tint:rgba(255,69,58,.16);--indigo:#5e5ce6;--teal:#40c8e0;color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#101512;--surface:#18201b;--fg:#e6ece8;--muted:#9aa8a0;--line:#2b3630;
-  --sign:#12824a;--sign-fg:#ffffff;--hivis:#f2b705;--hivis-ink:#2a2000;
-  --high:#6fd39b;--high-bg:#16321f;--med:#f0c25a;--med-bg:#352a0f;--low:#f08a7a;--low-bg:#3a1c18;--chip:#222b26;color-scheme:dark}
+  --bg:#000000;--surface:#1c1c1e;--surface-2:#2c2c2e;--fg:#f5f5f7;--muted:#98989d;--line:rgba(255,255,255,.1);
+  --accent:#2997ff;--accent-fg:#ffffff;--accent-tint:rgba(41,151,255,.16);--glass:rgba(22,22,23,.72);--shadow:0 0 0 1px rgba(255,255,255,.06);
+  --high:#30d158;--high-ink:#30d158;--high-tint:rgba(48,209,88,.16);--med:#ff9f0a;--med-ink:#ffb340;--med-tint:rgba(255,159,10,.18);
+  --low:#ff453a;--low-ink:#ff6961;--low-tint:rgba(255,69,58,.16);--indigo:#5e5ce6;--teal:#40c8e0;color-scheme:dark}
 
+/* Chart tokens: categorical slots 1–5 of the validated palette, fixed per platform */
+:root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--grid:#e8e8ed;--axis:#c7c7cc;--ink-2:#52514e;--ink-3:#86868b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--grid:#2c2c2e;--axis:#48484a;--ink-2:#c3c2b7;--ink-3:#8e8e93}}
+:root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--grid:#2c2c2e;--axis:#48484a;--ink-2:#c3c2b7;--ink-3:#8e8e93}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:24px 64px}
-.wrap{max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;gap:48px}
-h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.05}
-h2{font-size:clamp(28px,4vw,36px);font-weight:700;letter-spacing:.01em}
-h3{font-size:22px;font-weight:600}
+html{-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.47;letter-spacing:-.011em}
+h1,h2,h3,h4{margin:0;text-wrap:balance;letter-spacing:-.028em;line-height:1.07;font-weight:700}
 p{margin:0}
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.lede{color:var(--muted);max-width:68ch}
-section{display:flex;flex-direction:column;gap:18px}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
 
-/* Sign header */
-.sign{background:var(--sign);color:var(--sign-fg);border-radius:10px;padding:28px clamp(18px,4vw,40px);border:3px solid var(--sign);outline:2px solid var(--sign-fg);outline-offset:-9px;display:flex;flex-direction:column;gap:14px}
-.sign h1{font-size:clamp(40px,7vw,68px);font-weight:700;letter-spacing:.01em}
-.sign .route{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--display);font-size:20px;font-weight:600}
-.sign .route span::before{content:"→ ";color:var(--hivis)}
-.sign p{max-width:70ch;opacity:.92}
-.shield{display:inline-flex;align-self:flex-start;background:var(--hivis);color:var(--hivis-ink);font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+/* Nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1080px;margin-inline:auto;padding-inline:16px;height:52px;display:flex;align-items:center;gap:22px}
+.brand{font-weight:600;font-size:17px;white-space:nowrap}
+.links{display:flex;gap:20px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.links::-webkit-scrollbar{display:none}
+.links a{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap}
+.links a:hover{color:var(--fg)}
+.nav .cta{background:var(--accent);color:var(--accent-fg);border:0;border-radius:999px;padding:5px 13px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+@media (max-width:640px){.links{display:none}.nav-in{justify-content:space-between}}
 
-/* Generic grids */
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
-.card h3{font-size:20px}
-.card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
-.pct{font-family:var(--display);font-size:34px;font-weight:700;color:var(--sign);line-height:1}
+main{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:0 96px;display:flex;flex-direction:column;gap:120px}
+section{display:flex;flex-direction:column;gap:28px;scroll-margin-top:72px}
+.eyebrow{font-size:17px;font-weight:600;color:var(--accent);letter-spacing:-.01em}
+.h2{font-size:clamp(34px,5.4vw,56px)}
+.sub{font-size:clamp(19px,2.2vw,24px);color:var(--muted);font-weight:500;line-height:1.3;max-width:34ch;letter-spacing:-.02em}
+.head{display:flex;flex-direction:column;gap:10px}
 
-/* Times table */
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;min-width:640px}
-th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--chip)}
-tr:last-child td{border-bottom:0}
-td strong{font-weight:600}
+/* Hero */
+.hero{padding-top:88px;align-items:center;text-align:center;gap:22px}
+.hero h1{font-size:clamp(48px,9vw,96px);letter-spacing:-.045em;line-height:1.02}
+.hero h1 span{background:linear-gradient(90deg,var(--accent),var(--indigo) 60%,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{max-width:40ch;margin-inline:auto}
+.upnext{margin-top:28px;width:100%;max-width:760px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:28px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;text-align:left;align-items:center}
+.dateTile{width:104px;border-radius:22px;overflow:hidden;background:var(--surface-2);text-align:center}
+.dateTile .mo{background:var(--low);color:#fff;font-size:13px;font-weight:600;padding:5px 0;letter-spacing:.02em;text-transform:uppercase}
+.dateTile .dd{font-size:52px;font-weight:700;line-height:1;padding:10px 0 4px;letter-spacing:-.04em}
+.dateTile .wd{font-size:13px;color:var(--muted);padding-bottom:10px}
+.upnext .when{font-size:14px;font-weight:600;color:var(--accent)}
+.upnext h3{font-size:clamp(22px,3vw,28px);margin-top:4px}
+.upnext p{color:var(--muted);font-size:15px;margin-top:8px}
+.upnext .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.bell{display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--muted);margin-top:4px}
+.bell svg{width:16px;height:16px;flex:none}
+@media (max-width:560px){.upnext{grid-template-columns:1fr;padding:22px}.dateTile{width:88px}}
 
-/* Pills */
-.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
-.g-High{background:var(--high-bg);color:var(--high)}
-.g-Medium{background:var(--med-bg);color:var(--med)}
-.g-Low{background:var(--low-bg);color:var(--low)}
-.plat{background:var(--chip);color:var(--fg);text-transform:none;letter-spacing:0}
+/* Buttons & pills */
+.btn{border:0;border-radius:999px;padding:9px 18px;font-size:15px;font-weight:500;cursor:pointer;background:var(--accent);color:var(--accent-fg)}
+.btn.ghost{background:var(--accent-tint);color:var(--accent)}
+.link{background:none;border:0;color:var(--accent);cursor:pointer;font-size:15px;padding:0}
+.link::after{content:" ›"}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill i{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+.g-High{background:var(--high-tint);color:var(--high-ink)} .g-High i{background:var(--high)}
+.g-Medium{background:var(--med-tint);color:var(--med-ink)} .g-Medium i{background:var(--med)}
+.g-Low{background:var(--low-tint);color:var(--low-ink)} .g-Low i{background:var(--low)}
+.plat{background:var(--surface-2);color:var(--fg);font-weight:500}
 
-/* Month grid */
-.month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.dow{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--muted);padding:4px 6px}
-.day{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-height:78px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0;font-size:12px}
-.day.empty{background:transparent;border-color:transparent}
-.day .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.day .ev{font-size:10.5px;font-family:var(--mono);color:var(--med);line-height:1.2}
-.day a{display:block;text-decoration:none;color:var(--fg);background:var(--chip);border-left:3px solid var(--muted);border-radius:3px;padding:2px 5px;font-size:11.5px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.day a.g-High{border-left-color:var(--high)}
-.day a.g-Medium{border-left-color:var(--med)}
-.day a.g-Low{border-left-color:var(--low)}
-.day a:hover,.day a:focus-visible{outline:2px solid var(--sign);outline-offset:1px}
-@media (max-width:640px){.day{min-height:54px}.day a{font-size:0;padding:0;height:6px;border-left-width:0}.day a.g-High{background:var(--high)}.day a.g-Medium{background:var(--med)}.day a.g-Low{background:var(--low)}.day .ev{display:none}}
+/* Bento */
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+.tile{background:var(--surface);border-radius:var(--r-lg);padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;min-width:0}
+.tile h3{font-size:24px}
+.tile p,.tile li{color:var(--muted);font-size:15px}
+.tile ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+.tile li{display:flex;gap:10px;align-items:flex-start}
+.tile li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:8px;flex:none}
+.s6{grid-column:span 6}.s4{grid-column:span 4}.s3{grid-column:span 3}.s2{grid-column:span 2}
+@media (max-width:860px){.s4,.s3,.s2{grid-column:span 6}}
+.big{font-size:clamp(48px,6vw,72px);font-weight:700;letter-spacing:-.05em;line-height:1}
+.mixbar{display:flex;height:14px;border-radius:999px;overflow:hidden;gap:3px;margin-top:6px}
+.mixbar span{display:block}
+.mixlegend{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-top:10px}
+.mixlegend div{display:flex;flex-direction:column;gap:4px}
+.mixlegend b{font-size:28px;letter-spacing:-.03em;display:flex;align-items:center;gap:8px}
+.mixlegend b i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.mixlegend strong{font-size:15px;color:var(--fg);font-weight:600}
+.mixlegend p{font-size:14px}
 
-/* Filters */
-.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.filters .label{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:4px}
-.fbtn{font:inherit;font-size:13px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
-.fbtn[aria-pressed="true"]{background:var(--sign);border-color:var(--sign);color:var(--sign-fg)}
-.fbtn:focus-visible,.btn:focus-visible,input:focus-visible{outline:2px solid var(--hivis);outline-offset:2px}
-.progress{font-family:var(--mono);font-size:13px;color:var(--muted);margin-left:auto}
+/* Time tracks */
+.tracks{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:28px;display:flex;flex-direction:column;gap:6px}
+.trow{display:grid;grid-template-columns:170px minmax(0,1fr);gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.trow:last-of-type{border-bottom:0}
+.tname{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tname b{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+.tname b i{width:9px;height:9px;border-radius:50%;flex:none}
+.tname small{color:var(--muted);font-size:13px}
+.track{position:relative;height:30px;background:var(--surface-2);border-radius:9px}
+.track .win{position:absolute;top:3px;bottom:3px;border-radius:7px;background:var(--accent);opacity:.9;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden}
+.track .win.soft{background:var(--accent-tint);color:var(--accent);opacity:1}
+.track .shift{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--med);border-radius:2px}
+.ticks{display:grid;grid-template-columns:170px minmax(0,1fr);gap:18px}
+.ticks .scale{position:relative;height:18px;font-size:12px;color:var(--muted)}
+.ticks .scale span{position:absolute;transform:translateX(-50%)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:3px}
+@media (max-width:640px){.trow,.ticks{grid-template-columns:1fr;gap:8px}.ticks .pad{display:none}.win{font-size:0!important}}
 
-/* Post run sheet */
-.posts{display:flex;flex-direction:column;gap:14px}
-.post{background:var(--surface);border:1px solid var(--line);border-radius:8px;display:grid;grid-template-columns:128px minmax(0,1fr);overflow:hidden;scroll-margin-top:16px}
-.post.done{opacity:.55}
-.post .when{background:var(--chip);padding:16px 14px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--line)}
-.post .d{font-family:var(--display);font-size:34px;font-weight:700;line-height:1}
-.post .dw{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--muted)}
-.post .t{font-family:var(--mono);font-size:12.5px;margin-top:6px}
-.post .body{padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.post .top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.post h3{font-size:23px}
-.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:6px 14px;font-size:14px}
-.kv dt{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding-top:2px}
-.kv dd{margin:0;min-width:0}
-.caption{background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:10px 12px;white-space:pre-wrap;font-size:14px}
-.tags{font-family:var(--mono);font-size:12.5px;color:var(--sign);word-break:break-word}
-.why{font-size:13.5px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.btn{font:inherit;font-size:13px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer}
-.btn:hover{border-color:var(--sign)}
-.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;cursor:pointer}
-.chk input{accent-color:var(--sign);width:16px;height:16px}
-@media (max-width:640px){.post{grid-template-columns:1fr}.post .when{flex-direction:row;align-items:baseline;gap:10px;border-right:0;border-bottom:1px solid var(--line);flex-wrap:wrap}.post .t{margin-top:0}.kv{grid-template-columns:1fr}.kv dt{padding-top:6px}}
-.empty-note{color:var(--muted);font-style:italic}
+/* Segmented control */
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:2px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg button{border:0;background:transparent;padding:6px 14px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{background:#636366}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{background:#636366}}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px;cursor:pointer;white-space:nowrap}
+.chips button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+/* Calendar */
+.calcard{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:18px}
+.calhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.calhead h3{font-size:32px}
+.stats{display:flex;gap:18px;color:var(--muted);font-size:14px;flex-wrap:wrap}
+.stats b{color:var(--fg);font-weight:600}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:var(--line);border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line)}
+.cal .dow{background:var(--surface);font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 10px 6px}
+.cell{background:var(--surface);min-height:104px;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:0;border:0;text-align:left;cursor:default}
+.cell.blank{background:var(--surface-2)}
+.cell.has{cursor:pointer}
+.cell.has:hover{background:var(--surface-2)}
+.cell .n{font-size:14px;font-weight:500;width:26px;height:26px;display:grid;place-items:center;border-radius:50%}
+.cell.today .n{background:var(--low);color:#fff;font-weight:600}
+.cell .ev{font-size:11px;color:var(--muted);line-height:1.2}
+.cell .its{display:flex;flex-direction:column;gap:3px;min-width:0;width:100%}
+.cell .it{display:flex;gap:5px;align-items:center;font-size:12px;line-height:1.25;min-width:0}
+.cell .it i{width:6px;height:6px;border-radius:50%;flex:none}
+.cell .it span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell .it.done span{text-decoration:line-through;color:var(--muted)}
+.dotH{background:var(--high)}.dotM{background:var(--med)}.dotL{background:var(--low)}
+@media (max-width:700px){.cell{min-height:58px;padding:5px;align-items:center}.cell .ev{display:none}.cell .it span{display:none}.cell .its{flex-direction:row;justify-content:center}.calcard{padding:14px}}
+
+/* Grouped list */
+.group{background:var(--surface);border-radius:var(--r-md);box-shadow:var(--shadow);overflow:hidden}
+.rowbtn{width:100%;display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 18px;background:transparent;border:0;border-bottom:1px solid var(--line);text-align:left;cursor:pointer}
+.rowbtn:last-child{border-bottom:0}
+.rowbtn:hover{background:var(--surface-2)}
+.rowbtn .dt{display:flex;flex-direction:column;align-items:center;line-height:1}
+.rowbtn .dt b{font-size:24px;font-weight:700;letter-spacing:-.03em}
+.rowbtn .dt small{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:3px;font-weight:600}
+.rowbtn .tx{min-width:0;display:flex;flex-direction:column;gap:5px}
+.rowbtn .tx strong{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rowbtn .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.pdots{display:inline-flex;gap:4px}
+.pdots i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.rowbtn .end{display:flex;gap:10px;align-items:center;color:var(--muted)}
+.rowbtn .chev{font-size:20px;color:var(--muted)}
+.check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center}
+.check.on{background:var(--high);border-color:var(--high);color:#fff}
+.check svg{width:12px;height:12px}
+.rowbtn.done strong{color:var(--muted);text-decoration:line-through}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+@media (max-width:560px){.rowbtn .end .pill{display:none}}
+
+/* Sheet */
+dialog{border:0;padding:0;background:var(--surface);color:var(--fg);border-radius:var(--r-lg);width:min(680px,calc(100% - 32px));max-height:min(88vh,900px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+@media (max-width:640px){dialog{width:100%;max-width:100%;margin:auto 0 0 0;border-radius:24px 24px 0 0;max-height:92vh}}
+.sheet{display:flex;flex-direction:column;max-height:inherit}
+.sheet-top{position:sticky;top:0;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);z-index:1}
+.sheet-top .x{width:30px;height:30px;border-radius:50%;border:0;background:var(--surface-2);cursor:pointer;display:grid;place-items:center;font-size:16px;color:var(--muted)}
+.sheet-body{padding:24px 24px 32px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
+.sheet-body h2{font-size:clamp(26px,4vw,34px)}
+.kicker{font-size:14px;font-weight:600;color:var(--accent)}
+.fieldset{background:var(--surface-2);border-radius:var(--r-md);overflow:hidden}
+.field{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.field:last-child{border-bottom:0}
+.field label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.field div{font-size:15px;white-space:pre-wrap;min-width:0;overflow-wrap:anywhere}
+.field .tags{color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.switch{display:inline-flex;gap:10px;align-items:center;font-size:15px;cursor:pointer}
+.switch input{appearance:none;-webkit-appearance:none;width:51px;height:31px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s}
+.switch input:checked{background:var(--high);border-color:var(--high)}
+.switch input:checked::after{transform:translateX(20px)}
 
 /* Grows */
-.two{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
-.list li:last-child{border-bottom:0}
-.list li small{grid-column:1/-1;color:var(--muted);font-size:13px}
-.note{border-left:4px solid var(--hivis);background:var(--surface);padding:14px 16px;border-radius:0 8px 8px 0;font-size:14px;max-width:80ch}
-footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
-@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.glist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.glist li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.glist li:last-child{border-bottom:0}
+.glist .ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center}
+.glist .ic svg{width:14px;height:14px}
+.ic.up{background:var(--high-tint);color:var(--high-ink)}
+.ic.down{background:var(--low-tint);color:var(--low-ink)}
+.glist b{font-size:16px;font-weight:600;display:block;color:var(--fg)}
+.glist span{font-size:14px;color:var(--muted)}
+.note{background:var(--med-tint);border-radius:var(--r-md);padding:18px 20px;font-size:15px;color:var(--fg)}
+.note b{color:var(--med-ink)}
+
+/* Peak */
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.timeline li{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;padding:12px 0;border-bottom:1px solid var(--line);align-items:start}
+.timeline li:last-child{border-bottom:0}
+.timeline .d{font-size:13px;font-weight:600;color:var(--accent);padding-top:2px}
+.timeline b{font-size:15px;font-weight:600;color:var(--fg);display:block}
+.timeline span{font-size:14px;color:var(--muted)}
+
+/* Analytics */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.kpi .lb{font-size:13px;font-weight:600;color:var(--muted)}
+.kpi .vl{font-size:clamp(30px,4vw,44px);font-weight:700;letter-spacing:-.04em;line-height:1.05}
+.kpi .dl{font-size:13px;font-weight:600;display:inline-flex;gap:4px;align-items:center}
+.dl.up{color:var(--high-ink)}.dl.down{color:var(--low-ink)}.dl.flat{color:var(--muted)}
+.chartTile{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:12px;min-width:0;position:relative}
+.chartTile h3{font-size:20px}
+.chartTile .cap{font-size:14px;color:var(--muted);margin-top:-6px}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-family:var(--font);font-size:11px;fill:var(--ink-3)}
+.chart .lbl{fill:var(--ink-2);font-size:12px;font-weight:500}
+.chart .val{fill:var(--fg);font-size:12px;font-weight:600}
+.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.14);border-radius:12px;padding:10px 12px;font-size:13px;min-width:150px;z-index:3}
+.tip b{display:block;font-size:13px;margin-bottom:4px}
+.tip .r{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.tip .r span:first-child{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2)}
+.tip i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.clegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--ink-2)}
+.clegend span{display:inline-flex;align-items:center;gap:6px}
+.clegend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.exampleBadge{display:inline-flex;align-items:center;gap:6px;background:var(--med-tint);color:var(--med-ink);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600}
+.sync{font-size:13px;color:var(--muted)}
+.entry{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:16px}
+.entry h3{font-size:24px}
+.etable{overflow-x:auto;border-radius:var(--r-md);background:var(--surface-2)}
+.etable table{border-collapse:collapse;width:100%;min-width:620px}
+.etable th,.etable td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+.etable tr:last-child td{border-bottom:0}
+.etable th{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.etable td:first-child{font-weight:600;font-size:15px;white-space:nowrap}
+.etable td:first-child i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:8px}
+.etable input{width:100%;min-width:80px;font:inherit;font-size:15px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-variant-numeric:tabular-nums}
+.etable input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+.entry textarea{width:100%;font:inherit;font-size:15px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);min-height:84px;resize:vertical}
+.entry textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint)}
+.hint{font-size:13px;color:var(--muted)}
+.hint b{color:var(--fg);font-weight:600}
+details.dt{background:var(--surface);border-radius:var(--r-md);box-shadow:var(--shadow);padding:14px 18px}
+details.dt summary{cursor:pointer;font-weight:600;font-size:15px;color:var(--accent)}
+details.dt .etable{margin-top:12px;background:transparent}
+.notesOut{background:var(--accent-tint);border-radius:var(--r-md);padding:16px 18px;font-size:15px;white-space:pre-wrap}
+.notesOut b{display:block;font-size:13px;color:var(--accent);margin-bottom:4px}
+
+footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24px 48px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;z-index:50}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}.tile,.rowbtn,.cell{transition:background .15s,transform .2s}.tile:hover{transform:translateY(-2px)}}
 </style>
 
-<div class="wrap">
-
-<header class="sign">
-  <span class="shield">Social content plan · Oct – Dec 2026</span>
-  <h1>Alpha Trucking Social Calendar</h1>
-  <div class="route"><span>Sydney</span><span>Melbourne</span><span>Brisbane</span><span>Adelaide</span></div>
-  <p>A day-by-day posting plan for Facebook, Instagram, LinkedIn, Pinterest and Google Business Profile. Every post has what to shoot or design, when to post (AEST), a ready caption, an SEO description, keywords, hashtags, and a growth rating that says whether it is likely to grow the page or mainly serve another job.</p>
-</header>
-
-<!-- STRATEGY -->
-<section>
-  <span class="eyebrow">The plan in one screen</span>
-  <h2>What you post, and why</h2>
-  <p class="lede">Alpha Trucking sells to two very different audiences. Businesses that ship freight (warehouse managers, e-commerce owners, builders, importers) decide on LinkedIn and Google. The wider public, future drivers and local businesses discover you on Instagram and Facebook through short video. The plan runs both tracks side by side.</p>
-  <div class="grid">
-    <div class="card"><span class="pct mono">40%</span><h3>Show the work</h3><p>Real trucks, real loads, real depot. Time-lapses of loading, heavy haulage moves, 4am starts at North St Marys. This is your main growth engine.</p></div>
-    <div class="card"><span class="pct mono">25%</span><h3>Teach shippers</h3><p>Pallet packing, container sizes, parcel vs pallet vs FTL, dangerous goods basics, insurance. Saveable carousels that rank and get shared.</p></div>
-    <div class="card"><span class="pct mono">20%</span><h3>Sell the routes</h3><p>Sydney–Melbourne, Sydney–Adelaide, Melbourne–Brisbane, Gold Coast–Brisbane, plus 3PL, containers and DG. Each post links to a service page for SEO.</p></div>
-    <div class="card"><span class="pct mono">15%</span><h3>People &amp; trust</h3><p>Drivers, reviews, safety, wellbeing, milestones. This builds the credibility behind a "fastest growing" claim.</p></div>
-  </div>
-  <div class="grid">
-    <div class="card"><h3>Weekly rhythm</h3><ul><li>2 Reels (Instagram + Facebook)</li><li>1 carousel (Instagram, re-cut as a LinkedIn PDF)</li><li>2 LinkedIn posts (Tue and Thu mornings)</li><li>1 Google Business Profile post</li><li>3–5 Pinterest pins from the week's graphics</li><li>Stories on most weekdays (polls, depot snaps)</li></ul></div>
-    <div class="card"><h3>What to film every week</h3><ul><li>One loading or unloading time-lapse</li><li>One truck leaving or arriving on a route</li><li>One 20-second driver or staff clip</li><li>5–10 clean photos of trucks and freight</li></ul><p class="why">Batch this on one morning. It feeds the whole week.</p></div>
-    <div class="card"><h3>SEO rules for every post</h3><ul><li>Put the service + city keyword in the first line</li><li>Link to the matching service page, not the homepage</li><li>Name photo files with keywords (e.g. <span class="mono">heavy-haulage-sydney.jpg</span>)</li><li>Add a location tag (North St Marys / the route city)</li><li>Turn the best posts into a blog post each month</li></ul></div>
-  </div>
-</section>
-
-<!-- TIMES -->
-<section>
-  <span class="eyebrow">When to post · all times AEST/AEDT (Sydney)</span>
-  <h2>Best posting windows</h2>
-  <p class="lede">These windows are common starting points for Australian B2B and local-business audiences. After four weeks, check each platform's insights and move posts to the hours your own followers are online.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Platform</th><th>Best days</th><th>Best times</th><th>Who you reach</th><th>Main job</th></tr></thead>
-    <tbody>
-      <tr><td><strong>LinkedIn</strong></td><td>Tue, Wed, Thu</td><td class="mono">7:30–9:00 am · 12:00–1:00 pm</td><td>Logistics managers, procurement, business owners</td><td>Leads, trust</td></tr>
-      <tr><td><strong>Instagram</strong></td><td>Wed, Fri, Sun</td><td class="mono">6:30–8:30 pm · 12:00 pm</td><td>Public, truck fans, future drivers, small business</td><td>Reach, followers</td></tr>
-      <tr><td><strong>Facebook</strong></td><td>Mon, Wed, Fri</td><td class="mono">12:00–1:00 pm · 7:00–8:00 pm</td><td>Local businesses, tradies, community groups</td><td>Reach, enquiries</td></tr>
-      <tr><td><strong>Pinterest</strong></td><td>Sat, Sun</td><td class="mono">8:00–10:00 pm</td><td>People searching "how to ship", "container sizes"</td><td>Long-term website traffic</td></tr>
-      <tr><td><strong>Google Business Profile</strong></td><td>Thu</td><td class="mono">Any time (weekly)</td><td>People searching "freight company near me"</td><td>Local SEO, calls</td></tr>
-    </tbody>
-  </table></div>
-</section>
-
-<!-- MONTH GRID -->
-<section>
-  <span class="eyebrow">October 2026 at a glance</span>
-  <h2>Month view</h2>
-  <p class="lede">Tap a post to jump to its full brief. The colour on each post shows its growth rating.</p>
-  <div class="filters" aria-hidden="true">
-    <span class="pill g-High">High growth</span><span class="pill g-Medium">Medium</span><span class="pill g-Low">Low, but needed</span>
-  </div>
-  <div class="month" id="month"></div>
-</section>
-
-<!-- RUN SHEET -->
-<section>
-  <span class="eyebrow">Post-by-post run sheet</span>
-  <h2>October 2026, every post</h2>
-  <div class="filters" id="platFilters"><span class="label">Platform</span></div>
-  <div class="filters" id="growFilters"><span class="label">Growth</span><span class="progress" id="progress"></span></div>
-  <div class="posts" id="posts"></div>
-</section>
-
-<!-- NOV / DEC -->
-<section>
-  <span class="eyebrow">Next two months</span>
-  <h2>November &amp; December: peak season</h2>
-  <p class="lede">Christmas is the busiest freight period of the year. November content should push early bookings; December content should give clear cut-off dates and thank customers.</p>
-  <div class="two">
-    <div class="card">
-      <h3>November 2026</h3>
-      <ul class="list">
-        <li><span><strong>Tue 3 · Melbourne Cup.</strong> Reel: "The race that stops a nation. Our freight doesn't." Truck on the Hume at race time.</span><span class="pill g-High">High</span></li>
-        <li><span><strong>All month · Movember.</strong> Team moustache progress photos each Friday; link to your fundraising page.</span><span class="pill g-Medium">Medium</span></li>
-        <li><span><strong>Wed 11 · Remembrance Day.</strong> Simple, respectful 11am post. No selling.</span><span class="pill g-Low">Low</span></li>
-        <li><span><strong>Mon 16 · Christmas cut-off dates.</strong> Carousel + GBP + pinned post with your cut-off per route.</span><span class="pill g-High">High</span></li>
-        <li><span><strong>Route spotlight: Sydney → Adelaide.</strong> LinkedIn document post with transit time and freight types.</span><span class="pill g-Medium">Medium</span></li>
-        <li><span><strong>Case study.</strong> "How we moved [client]'s stock before Christmas." Problem, what you did, result.</span><span class="pill g-High">High</span></li>
-        <li><span><strong>Fri 27 – Mon 30 · Black Friday / Cyber Monday.</strong> Aimed at online retailers: "Selling big this weekend? Your pallets need to move Monday."</span><span class="pill g-Medium">Medium</span></li>
-      </ul>
+<nav class="nav" aria-label="Sections">
+  <div class="nav-in">
+    <span class="brand">Alpha Trucking</span>
+    <div class="links">
+      <a href="#strategy">Strategy</a><a href="#times">Posting times</a><a href="#calendar">Calendar</a><a href="#analytics">Analytics</a><a href="#grows">Grows or not</a><a href="#measure">Measure</a>
     </div>
-    <div class="card">
-      <h3>December 2026</h3>
-      <ul class="list">
-        <li><span><strong>1–12 · "12 Days of Freight Tips".</strong> One short tip a day in Stories and Reels. Builds a daily habit.</span><span class="pill g-High">High</span></li>
-        <li><span><strong>Weekly · Cut-off countdown.</strong> "7 days left to book interstate freight before Christmas."</span><span class="pill g-High">High</span></li>
-        <li><span><strong>Mid-month · Team Christmas thank-you.</strong> Drivers and warehouse staff photo, names with permission.</span><span class="pill g-Medium">Medium</span></li>
-        <li><span><strong>Holiday trading hours.</strong> Facebook, GBP and pinned post. Update GBP hours too.</span><span class="pill g-Low">Low</span></li>
-        <li><span><strong>~Dec 28 · 2026 year in review Reel.</strong> Kilometres, loads, new routes, new trucks (real numbers only).</span><span class="pill g-High">High</span></li>
-        <li><span><strong>Dec 30 · "Planning 2027 freight?"</strong> LinkedIn post inviting contract and quote conversations for the new year.</span><span class="pill g-Medium">Medium</span></li>
-      </ul>
-    </div>
+    <button class="cta" type="button" id="navNext">Up next</button>
   </div>
-</section>
+</nav>
 
-<!-- GROWS OR NOT -->
-<section>
-  <span class="eyebrow">Content that grows, and content that doesn't</span>
-  <h2>Grows or not</h2>
-  <p class="lede">Ratings are based on how these formats usually perform for transport and trade businesses. Your own insights after the first month decide what stays.</p>
-  <div class="two">
-    <div class="card">
-      <h3>Grows the page</h3>
-      <ul class="list">
-        <li><span>Loading / unloading time-lapse Reels</span><span class="pill g-High">High</span><small>Satisfying to watch, gets rewatched, which pushes reach.</small></li>
-        <li><span>Heavy haulage and oversize moves</span><span class="pill g-High">High</span><small>Big machinery on a truck is the most shared trucking content.</small></li>
-        <li><span>Driver POV and "day in the life"</span><span class="pill g-High">High</span><small>Faces build followers and attract drivers you may hire.</small></li>
-        <li><span>How-to carousels (packing, sizes, which service)</span><span class="pill g-High">High</span><small>Get saved and shared, and rank in Instagram and Pinterest search.</small></li>
-        <li><span>Christmas cut-off and "book early" posts</span><span class="pill g-High">High</span><small>Direct buying intent. Brings quote requests.</small></li>
-        <li><span>Customer case studies with real results</span><span class="pill g-High">High</span><small>Best LinkedIn format for leads.</small></li>
-      </ul>
+<main>
+  <section class="hero" id="top">
+    <span class="eyebrow">Social calendar · Oct – Dec 2026</span>
+    <h1>Every post.<br><span>Planned.</span></h1>
+    <p class="sub">What to make, when to post, and whether it will grow the page. For Sydney, Melbourne, Brisbane and Adelaide.</p>
+    <div class="upnext" id="upnext"></div>
+  </section>
+
+  <section id="strategy">
+    <div class="head"><span class="eyebrow">Strategy</span><h2 class="h2">Four kinds of post.<br>One clear mix.</h2></div>
+    <div class="bento">
+      <div class="tile s6">
+        <h3>Content mix</h3>
+        <p>Businesses that ship freight decide on LinkedIn and Google. The public, future drivers and local businesses find you on Instagram and Facebook through short video. This mix covers both.</p>
+        <div class="mixbar" role="img" aria-label="Content mix: 40% show the work, 25% teach shippers, 20% sell the routes, 15% people and trust">
+          <span style="flex:40;background:var(--accent)"></span><span style="flex:25;background:var(--indigo)"></span><span style="flex:20;background:var(--teal)"></span><span style="flex:15;background:var(--med)"></span>
+        </div>
+        <div class="mixlegend">
+          <div><b class="num"><i style="background:var(--accent)"></i>40%</b><strong>Show the work</strong><p>Loading time-lapses, heavy haulage, 4am at North St Marys.</p></div>
+          <div><b class="num"><i style="background:var(--indigo)"></i>25%</b><strong>Teach shippers</strong><p>Pallet packing, container sizes, DG basics, insurance.</p></div>
+          <div><b class="num"><i style="background:var(--teal)"></i>20%</b><strong>Sell the routes</strong><p>Each post links to its service page for SEO.</p></div>
+          <div><b class="num"><i style="background:var(--med)"></i>15%</b><strong>People &amp; trust</strong><p>Drivers, reviews, safety and milestones.</p></div>
+        </div>
+      </div>
+      <div class="tile s2"><span class="big num">5<span style="font-size:.45em;letter-spacing:-.02em"> am</span></span><h3>Reminder at shift start</h3><p>The day before every post, you get a notification at 5:00 am with what to film or design that day.</p></div>
+      <div class="tile s2"><h3>Every week</h3><ul><li>2 Reels on Instagram and Facebook</li><li>1 carousel, re-cut as a LinkedIn PDF</li><li>2 LinkedIn posts</li><li>1 Google Business post</li><li>3–5 Pinterest pins</li></ul></div>
+      <div class="tile s2"><h3>Film once a week</h3><ul><li>One loading time-lapse</li><li>One truck leaving or arriving</li><li>One 20-second staff clip</li><li>5–10 clean truck photos</li></ul></div>
+      <div class="tile s3"><h3>SEO in every post</h3><ul><li>Service and city keyword in the first line</li><li>Link to the service page, not the homepage</li><li>Keyword file names, like heavy-haulage-sydney.jpg</li><li>Location tag on every post</li></ul></div>
+      <div class="tile s3"><h3>Reuse everything</h3><ul><li>Reels go to Instagram, Facebook and YouTube Shorts</li><li>Carousels become LinkedIn PDFs and Pinterest pins</li><li>The best post each month becomes a blog article</li><li>Rewrite the first line for each platform</li></ul></div>
     </div>
-    <div class="card">
-      <h3>Doesn't grow (use sparingly)</h3>
-      <ul class="list">
-        <li><span>"Happy Monday" quotes and stock photos</span><span class="pill g-Low">Low</span><small>No reason to stop scrolling. Skip entirely.</small></li>
-        <li><span>Plain "we offer freight services" ads as posts</span><span class="pill g-Low">Low</span><small>Reads as an ad, gets low reach. Put the offer inside a tip or a story.</small></li>
-        <li><span>Holiday greeting graphics with just the logo</span><span class="pill g-Low">Low</span><small>Fine once, but pair them with a real photo of your team.</small></li>
-        <li><span>Reposting the same image on every platform unchanged</span><span class="pill g-Low">Low</span><small>Resize and rewrite the first line for each platform.</small></li>
-        <li><span>Opening hours and closure notices</span><span class="pill g-Low">Low</span><small>Won't grow the page, but customers need them. Keep them on GBP and Stories.</small></li>
-        <li><span>Hashtag walls of 25+ tags</span><span class="pill g-Low">Low</span><small>Use 5–8 specific tags. Keywords in the caption now matter more.</small></li>
-      </ul>
+  </section>
+
+  <section id="times">
+    <div class="head"><span class="eyebrow">Posting times</span><h2 class="h2">Post when they scroll.</h2><p class="sub">All times are Sydney time. Your shift starts at 5 am, so there is time to prep before the first window.</p></div>
+    <div class="tracks" id="tracks"></div>
+  </section>
+
+  <section id="calendar">
+    <div class="head"><span class="eyebrow">Calendar</span><h2 class="h2">The whole quarter,<br>day by day.</h2></div>
+    <div class="toolbar">
+      <div class="seg" id="monthSeg" role="group" aria-label="Month"></div>
+      <div class="seg" id="growSeg" role="group" aria-label="Growth"></div>
     </div>
-  </div>
-  <div class="note"><strong>Check the "cheapest" claim.</strong> The website calls Alpha Trucking the "cheapest freight company". Under Australian Consumer Law, a claim like that needs to be backed up. On social posts, safer wording is "competitive rates", "fair, upfront pricing" or "get a quote in minutes".</div>
-</section>
+    <div class="chips" id="platChips" role="group" aria-label="Platform"></div>
+    <div class="calcard">
+      <div class="calhead"><h3 id="calTitle"></h3><div class="stats" id="stats"></div></div>
+      <div class="cal" id="cal"></div>
+      <div class="legend"><span><i class="dotH"></i>High growth</span><span><i class="dotM"></i>Medium</span><span><i class="dotL"></i>Low, but needed</span></div>
+    </div>
+    <div class="group" id="list"></div>
+  </section>
 
-<!-- KPIs -->
-<section>
-  <span class="eyebrow">Measure monthly</span>
-  <h2>How to tell if it's working</h2>
-  <div class="grid">
-    <div class="card"><h3>Reach</h3><p>Reel views, accounts reached, new followers per week. Aim for steady week-on-week growth on Instagram.</p></div>
-    <div class="card"><h3>Engagement</h3><p>Saves and shares count more than likes. A post with many saves is a format to repeat.</p></div>
-    <div class="card"><h3>Leads</h3><p>Website clicks, WhatsApp messages, calls to 1300 025 742, quote form fills. Ask every new customer "where did you hear about us?"</p></div>
-    <div class="card"><h3>SEO</h3><p>Google Business Profile calls and direction requests, and Search Console clicks on route and service pages.</p></div>
-  </div>
-  <p class="lede">At the end of each month, find your top 3 posts by saves + shares and make three more like them. Drop the bottom 3 formats.</p>
-</section>
+  <section id="analytics">
+    <div class="head"><span class="eyebrow">Analytics</span><h2 class="h2">Month-end numbers.<br>See what's growing.</h2><p class="sub">At the end of each month, copy the numbers from each platform's insights into the form below. The charts update straight away.</p></div>
+    <div class="toolbar">
+      <div class="seg" id="aMonthSeg" role="group" aria-label="Analytics month"></div>
+      <span id="aStatus" class="sync">Connecting…</span>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div id="notesOut"></div>
+    <div class="bento">
+      <div class="chartTile s6"><h3>Followers by platform</h3><p class="cap">Total followers at the end of each month</p><div class="clegend" id="fLegend"></div><div class="chart" id="cFollowers"></div></div>
+      <div class="chartTile s3"><h3>Reach</h3><p class="cap">Accounts reached, all platforms</p><div class="chart" id="cReach"></div></div>
+      <div class="chartTile s3"><h3>Leads</h3><p class="cap">Enquiries from social: calls, DMs, WhatsApp, forms</p><div class="chart" id="cLeads"></div></div>
+    </div>
+    <details class="dt"><summary>Show all months as a table</summary><div class="etable" id="allTable"></div></details>
+    <form class="entry" id="entry" novalidate>
+      <div class="calhead"><h3 id="entryTitle">Enter month-end numbers</h3><span class="hint">Leave a box empty if it doesn't apply</span></div>
+      <div class="etable" id="entryTable"></div>
+      <p class="hint"><b>Followers</b> total at month end · <b>Reach</b> accounts reached (profile views on Google Business) · <b>Engagement</b> likes + comments + shares + saves · <b>Clicks</b> website or link clicks · <b>Leads</b> enquiries that came from that platform</p>
+      <label for="aNotes" class="hint"><b>What worked this month?</b></label>
+      <textarea id="aNotes" placeholder="e.g. Heavy haulage Reel got 12k views and 3 quote requests. Carousels got the most saves."></textarea>
+      <div class="actions"><span class="hint" id="entryMsg"></span><button class="btn" type="submit" id="saveBtn">Save numbers</button></div>
+    </form>
+  </section>
 
-<footer>Plan built from alphatrucking.com.au (services, routes and contact details). Swap in your real transit times, prices, photos and numbers before posting; items in [square brackets] are placeholders.</footer>
-</div>
+  <section id="grows">
+    <div class="head"><span class="eyebrow">Grows or not</span><h2 class="h2">What grows the page.<br>What doesn't.</h2><p class="sub">Based on how these formats usually perform for transport businesses. Your insights after month one decide what stays.</p></div>
+    <div class="two">
+      <div class="tile"><h3>Grows</h3><ul class="glist" id="growsUp"></ul></div>
+      <div class="tile"><h3>Doesn't grow</h3><ul class="glist" id="growsDown"></ul></div>
+    </div>
+    <div class="note"><b>Check the "cheapest" claim.</b> The website calls Alpha Trucking the "cheapest freight company". Under Australian Consumer Law that claim needs to be backed up. In posts, use "competitive rates" or "fair, upfront pricing".</div>
+  </section>
+
+  <section id="measure">
+    <div class="head"><span class="eyebrow">Measure</span><h2 class="h2">Know what's working.</h2></div>
+    <div class="bento">
+      <div class="tile s3"><h3>Reach</h3><p>Reel views, accounts reached and new followers each week. Look for steady growth on Instagram.</p></div>
+      <div class="tile s3"><h3>Saves &amp; shares</h3><p>These count more than likes. A post with lots of saves is a format to repeat.</p></div>
+      <div class="tile s3"><h3>Leads</h3><p>Website clicks, WhatsApp messages, calls to 1300 025 742 and quote forms. Ask every new customer where they found you.</p></div>
+      <div class="tile s3"><h3>Local SEO</h3><p>Google Business calls and direction requests, and Search Console clicks on route pages.</p></div>
+      <div class="tile s6"><h3>The monthly review</h3><p>At month end, take your top 3 posts by saves and shares and make three more like them. Drop the 3 weakest formats.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer>Built from alphatrucking.com.au. Replace anything in [square brackets] with your real transit times, names, numbers and reviews before posting. Growth ratings are estimates, not measured results.</footer>
+
+<dialog id="sheet" aria-labelledby="sheetTitle"><div class="sheet" id="sheetInner"></div></dialog>
+<div class="toast" id="toast" hidden></div>
 
 <script>
-const BASE = "#AlphaTrucking #FreightAustralia";
-const posts = [
- {id:"o1",d:1,dow:"Thu",time:"8:00 am",plats:["LinkedIn","Facebook"],fmt:"Carousel (6 slides)",grow:"Medium",goal:"Trust",
+const BASE="#AlphaTrucking #FreightAustralia";
+const PL={"LinkedIn":"--p-li","Instagram":"--p-ig","Facebook":"--p-fb","Pinterest":"--p-pi","Google Business":"--p-gb"};
+const posts=[
+ {id:"o1",m:10,d:1,time:"8:00 am",plats:["LinkedIn","Facebook"],fmt:"Carousel, 6 slides",grow:"Medium",goal:"Trust",
   title:"Safe Work Month: our pre-trip checklist",
-  make:"Photograph a driver doing a real pre-trip check (tyres, lights, load restraints, logbook). Turn it into a 6-slide carousel, one check per slide, with a closing slide 'Safety is part of on-time delivery'.",
+  make:"Photograph a driver doing a real pre-trip check (tyres, lights, load restraints, logbook). Make 6 slides, one check per slide, ending with 'Safety is part of on-time delivery'.",
   caption:"October is National Safe Work Month. 🦺\n\nBefore every Alpha Trucking truck leaves North St Marys, our drivers run through this checklist. Swipe to see what we check and why it keeps your freight on time.\n\nSafe drivers. Safe freight. Every run.",
   seo:"Alpha Trucking marks Safe Work Month with the pre-trip safety checklist our drivers use before every interstate freight run from Sydney.",
   kw:"safe freight company Sydney, truck safety checklist, interstate trucking NSW",
   tags:BASE+" #SafeWorkMonth #TruckSafety #SydneyFreight #Logistics",
   why:"Safety posts do well on LinkedIn with logistics managers. On Instagram they are average unless you show a real driver."},
- {id:"o2",d:2,dow:"Fri",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (15–20 s)",grow:"High",goal:"Reach",
+ {id:"o2",m:10,d:2,time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel, 15–20 s",grow:"High",goal:"Reach",
   title:"Loading a full truck in 15 seconds",
-  make:"Set a phone on a tripod in the depot and time-lapse a full load (30–45 minutes of footage sped up). Add a trending audio track and a text hook in the first second.",
+  make:"Put a phone on a tripod in the depot and time-lapse a full load. Add trending audio and a text hook in the first second.",
   caption:"45 minutes of loading. 15 seconds of your time. ⏱️🚛\n\nEvery pallet strapped, checked and ready for the road to Melbourne.\n\nNeed freight moved interstate? Link in bio or call 1300 025 742.",
   seo:"Time-lapse of Alpha Trucking loading a full truck of pallet freight at our Western Sydney depot for interstate delivery to Melbourne.",
   kw:"pallet freight Sydney, interstate truck loading, freight company Western Sydney",
   tags:BASE+" #TruckTok #Timelapse #PalletFreight #AussieTruckies",
-  why:"Time-lapses get watched more than once, and rewatches are the strongest signal for Reels reach."},
- {id:"o3",d:5,dow:"Mon",time:"9:00 am",plats:["Facebook","Google Business Profile"],fmt:"Single image + Story",grow:"Low",goal:"Service",
+  why:"Time-lapses get rewatched, and rewatches are the strongest signal for Reels reach."},
+ {id:"o3",m:10,d:5,time:"9:00 am",plats:["Facebook","Google Business"],fmt:"Image + Story",grow:"Low",goal:"Service",
   title:"Public holiday operating hours",
-  make:"A clean photo of a truck with your hours for the Labour Day (NSW, SA) / King's Birthday (QLD) long weekend overlaid. Post it to Stories too.",
+  make:"A clean truck photo with your Labour Day (NSW, SA) / King's Birthday (QLD) hours on it. Post to Stories too.",
   caption:"Long weekend update 🗓️\n\nMonday 5 October is Labour Day in NSW and SA and the King's Birthday in QLD. Here's how Alpha Trucking is running: [your hours].\n\nNeed something moved urgently? WhatsApp us or call 1300 025 742.",
   seo:"Alpha Trucking operating hours for the October 2026 Labour Day and King's Birthday long weekend across NSW, SA and QLD.",
   kw:"freight public holiday hours, Labour Day freight NSW",
   tags:BASE+" #LabourDay #LongWeekend",
-  why:"Will not grow followers. Needed so customers are not surprised. Keep it short."},
- {id:"o4",d:6,dow:"Tue",time:"8:00 am",plats:["LinkedIn"],fmt:"PDF document post (5 pages)",grow:"High",goal:"Leads",
+  why:"Won't grow followers, but customers need it. Keep it short."},
+ {id:"o4",m:10,d:6,time:"8:00 am",plats:["LinkedIn"],fmt:"PDF document, 5 pages",grow:"High",goal:"Leads",
   title:"Route spotlight: Sydney → Melbourne",
-  make:"A 5-page PDF: the route map, typical transit time [your time], what you carry (general, pallets, containers), pick-up and delivery areas, and a 'get a quote' page. Write a matching blog post on your site.",
+  make:"5-page PDF: route map, transit time [your time], freight types, pick-up and delivery areas, and a 'get a quote' page. Write a matching blog post.",
   caption:"Sydney to Melbourne is one of Australia's busiest freight corridors. Here's how Alpha Trucking runs it:\n\n→ Transit time: [x] days\n→ General freight, pallets and containers\n→ Pick-up across Sydney, delivery across Melbourne metro\n\nSwipe through, and message us for a quote on your next load.",
   seo:"Sydney to Melbourne freight with Alpha Trucking: transit times, freight types and pick-up areas for interstate road transport.",
   kw:"Sydney to Melbourne freight, interstate freight Sydney Melbourne, road freight Melbourne",
   tags:BASE+" #SydneyToMelbourne #InterstateFreight #Logistics #SupplyChain",
-  why:"Document posts get high dwell time on LinkedIn, and this is exactly what a buyer is searching for."},
- {id:"o5",d:7,dow:"Wed",time:"7:00 pm",plats:["Instagram","Pinterest"],fmt:"Carousel (7 slides)",grow:"High",goal:"Saves",
+  why:"Document posts hold attention on LinkedIn, and this is exactly what a buyer searches for."},
+ {id:"o5",m:10,d:7,time:"7:00 pm",plats:["Instagram","Pinterest"],fmt:"Carousel, 7 slides",grow:"High",goal:"Saves",
   title:"5 ways to pack a pallet so it arrives in one piece",
-  make:"Photograph a good pallet vs a bad one. Slides: heavy on the bottom, no overhang, stretch-wrap to the base, corner boards, clear labels. End slide: 'Save this for your next shipment'.",
-  caption:"Most freight damage starts before the truck moves. 📦\n\nSave these 5 pallet packing tips for your next shipment:\n1. Heaviest boxes on the bottom\n2. No overhang past the pallet edge\n3. Wrap right down to the base\n4. Use corner boards\n5. Label two sides\n\nShipping pallets interstate? We can help.",
+  make:"Photograph a good pallet and a bad one. Slides: heavy on the bottom, no overhang, wrap to the base, corner boards, clear labels. End with 'Save this for your next shipment'.",
+  caption:"Most freight damage starts before the truck moves. 📦\n\nSave these 5 pallet packing tips:\n1. Heaviest boxes on the bottom\n2. No overhang past the pallet edge\n3. Wrap right down to the base\n4. Use corner boards\n5. Label two sides\n\nShipping pallets interstate? We can help.",
   seo:"How to pack a pallet for freight: 5 tips from Alpha Trucking to stop damage on interstate pallet delivery in Australia.",
   kw:"how to pack a pallet, pallet delivery Sydney, pallet freight tips",
   tags:BASE+" #PalletDelivery #ShippingTips #SmallBusinessAustralia #Ecommerce",
-  why:"Useful checklists get saved and shared, and they keep working in search for months."},
- {id:"o6",d:8,dow:"Thu",time:"10:00 am",plats:["Google Business Profile","Facebook"],fmt:"Photo post",grow:"Medium",goal:"SEO",
-  title:"Service spotlight: 3PL warehousing in Western Sydney",
-  make:"Wide photo of racking and stock in your warehouse. Short, keyword-rich text and a 'Learn more' button to the 3PL page.",
-  caption:"Need somewhere to store stock between shipments? 🏭\n\nAlpha Trucking offers 3PL warehousing in North St Marys, with storage, pick and pack, and delivery all under one roof.\n\nAsk us about space: 1300 025 742.",
+  why:"Checklists get saved and shared, and keep working in search for months."},
+ {id:"o6",m:10,d:8,time:"10:00 am",plats:["Google Business","Facebook"],fmt:"Photo post",grow:"Medium",goal:"SEO",
+  title:"3PL warehousing in Western Sydney",
+  make:"Wide photo of racking and stock in the warehouse. Short keyword-rich text with a 'Learn more' button to the 3PL page.",
+  caption:"Need somewhere to store stock between shipments? 🏭\n\nAlpha Trucking offers 3PL warehousing in North St Marys, with storage, pick and pack, and delivery under one roof.\n\nAsk us about space: 1300 025 742.",
   seo:"3PL warehousing in North St Marys, Western Sydney: storage, pick and pack and freight delivery from Alpha Trucking.",
   kw:"3PL warehousing Western Sydney, warehouse storage North St Marys, 3PL Sydney",
   tags:BASE+" #3PL #Warehousing #WesternSydney",
-  why:"Reach is modest, but GBP posts with local keywords help you show up in 'near me' searches."},
- {id:"o7",d:9,dow:"Fri",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (20–30 s)",grow:"High",goal:"Reach",
+  why:"Modest reach, but local keywords help you show up in 'near me' searches."},
+ {id:"o7",m:10,d:9,time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel, 20–30 s",grow:"High",goal:"Reach",
   title:"Meet the driver",
-  make:"Film one driver (with consent) answering 3 quick questions: How long have you driven? Favourite route? Best road food stop? Use captions on screen.",
+  make:"Film one driver (with consent) answering 3 questions: How long have you driven? Favourite route? Best road food stop? Add on-screen captions.",
   caption:"Meet [Name], one of the drivers keeping Sydney and Melbourne moving. 👋\n\nFavourite route: [route]\nBest pie stop: [town]\n\nDrop a 🚛 to say g'day.",
   seo:"Meet the Alpha Trucking drivers who move interstate freight between Sydney, Melbourne, Brisbane and Adelaide every week.",
   kw:"truck driver Australia, interstate truck driver Sydney",
   tags:BASE+" #MeetTheTeam #AussieTruckies #TruckDriver #TruckLife",
-  why:"Faces outperform trucks alone. It also helps you recruit drivers."},
- {id:"o8",d:10,dow:"Sat",time:"10:00 am",plats:["LinkedIn","Facebook","Instagram"],fmt:"Single image",grow:"Medium",goal:"Trust",
-  title:"World Mental Health Day: looking after our drivers",
-  make:"A real team photo. Share what you do for driver wellbeing (rest breaks, check-ins) and point to resources like Healthy Heads in Trucks & Sheds.",
+  why:"Faces beat trucks alone, and it helps you recruit drivers."},
+ {id:"o8",m:10,d:10,time:"10:00 am",plats:["LinkedIn","Facebook","Instagram"],fmt:"Single image",grow:"Medium",goal:"Trust",
+  title:"World Mental Health Day",
+  make:"A real team photo. Share what you do for driver wellbeing and point to resources like Healthy Heads in Trucks & Sheds.",
   caption:"Long hours and long roads can be tough. 💚\n\nOn World Mental Health Day, a reminder to every driver and warehouse worker: check in with your mates. Here's what we do at Alpha Trucking: [your practices].",
   seo:"Alpha Trucking supports driver mental health on World Mental Health Day with wellbeing check-ins for the trucking and logistics industry.",
   kw:"truck driver mental health, logistics wellbeing Australia",
   tags:BASE+" #WorldMentalHealthDay #HealthyHeads #TruckDrivers",
-  why:"Good for employer brand. Keep it sincere; do not add a sales message."},
- {id:"o9",d:13,dow:"Tue",time:"8:00 am",plats:["LinkedIn"],fmt:"Text + image",grow:"Medium",goal:"Leads",
-  title:"Dangerous goods transport, explained simply",
-  make:"Photo of a placarded DG load (placards visible, no customer names). Short post covering the classes you carry, driver licensing and compliance with the Australian Dangerous Goods Code.",
+  why:"Good for employer brand. Keep it sincere, with no sales message."},
+ {id:"o9",m:10,d:13,time:"8:00 am",plats:["LinkedIn"],fmt:"Text + image",grow:"Medium",goal:"Leads",
+  title:"Dangerous goods transport, explained",
+  make:"Photo of a placarded DG load (no customer names). Cover the classes you carry, driver licensing and the Australian Dangerous Goods Code.",
   caption:"Moving dangerous goods isn't like moving general freight.\n\nAt Alpha Trucking, DG loads get:\n→ Licensed, trained drivers\n→ Correct placarding and paperwork\n→ Compliance with the Australian Dangerous Goods Code\n\nNeed DG freight moved in NSW, VIC, QLD or SA? Let's talk.",
   seo:"Dangerous goods transport in Sydney and interstate by Alpha Trucking: licensed drivers and compliance with the Australian Dangerous Goods Code.",
   kw:"dangerous goods transport Sydney, DG freight NSW, dangerous goods trucking Australia",
   tags:BASE+" #DangerousGoods #DGTransport #Compliance #Logistics",
-  why:"Small audience, but high-value buyers. Brings the right enquiries more than big reach."},
- {id:"o10",d:14,dow:"Wed",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (20–30 s)",grow:"High",goal:"Reach",
+  why:"Small audience, high-value buyers. Brings the right enquiries more than big reach."},
+ {id:"o10",m:10,d:14,time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel, 20–30 s",grow:"High",goal:"Reach",
   title:"Heavy haulage: oversize load on the move",
-  make:"Film an oversize or heavy haulage job: machine being loaded, chained, and the truck pulling out. Hook text: 'How do you move a [x]-tonne [machine]?'",
+  make:"Film an oversize job: machine loaded, chained, truck pulling out. Hook: 'How do you move a [x]-tonne [machine]?'",
   caption:"How do you move a [x]-tonne [machine] across the state? Very carefully. 😅🏗️\n\nHeavy haulage and oversize loads by Alpha Trucking, planned, permitted and delivered.\n\nGot something big to move? DM us.",
   seo:"Heavy haulage and oversize load transport in NSW and interstate by Alpha Trucking: loading, securing and delivering heavy machinery.",
   kw:"heavy haulage Sydney, oversize load transport NSW, machinery transport",
   tags:BASE+" #HeavyHaulage #OversizeLoad #MachineryTransport #Trucking",
   why:"Oversize loads are the most shared trucking content. Likely your best Reel of the month."},
- {id:"o11",d:15,dow:"Thu",time:"8:00 pm",plats:["Pinterest","Instagram"],fmt:"Infographic (tall pin 1000×1500)",grow:"Medium",goal:"SEO",
-  title:"Container sizes explained: 20ft vs 40ft vs 40ft High Cube",
-  make:"One tall infographic with internal dimensions: 20ft (about 5.9 × 2.35 × 2.39 m), 40ft (about 12.0 × 2.35 × 2.39 m), 40ft HC (about 12.0 × 2.35 × 2.69 m) and roughly how many pallets fit. Link the pin to your container transport page.",
+ {id:"o11",m:10,d:15,time:"8:00 pm",plats:["Pinterest","Instagram"],fmt:"Infographic, 1000×1500",grow:"Medium",goal:"SEO",
+  title:"Container sizes: 20ft vs 40ft vs 40ft High Cube",
+  make:"One tall infographic with internal sizes: 20ft (about 5.9 × 2.35 × 2.39 m), 40ft (about 12.0 × 2.35 × 2.39 m), 40ft HC (about 12.0 × 2.35 × 2.69 m) and pallets per container. Link the pin to your container page.",
   caption:"Which shipping container do you need? 📐\n\n20ft, 40ft or 40ft High Cube: here are the internal sizes and how many pallets fit in each. Save it for later.\n\nWe move containers of all sizes around Sydney and interstate.",
   seo:"Shipping container sizes explained: 20ft, 40ft and 40ft High Cube dimensions and pallet capacity, from Alpha Trucking container transport.",
   kw:"container sizes 20ft 40ft, container transport Sydney, shipping container dimensions",
   tags:BASE+" #ContainerTransport #ShippingContainer #Logistics",
-  why:"Slow start, but Pinterest pins keep sending search traffic for months. Low effort to reuse."},
- {id:"o12",d:16,dow:"Fri",time:"12:30 pm",plats:["Facebook","Instagram","LinkedIn"],fmt:"Review graphic",grow:"Medium",goal:"Trust",
+  why:"Slow start, but pins keep sending search traffic for months."},
+ {id:"o12",m:10,d:16,time:"12:30 pm",plats:["Facebook","Instagram","LinkedIn"],fmt:"Review graphic",grow:"Medium",goal:"Trust",
   title:"Customer review of the week",
-  make:"Screenshot a real 5-star Google review (first name only) on a branded background with a truck photo behind it.",
+  make:"A real 5-star Google review (first name only) on a branded background over a truck photo.",
   caption:"This one made our week. ⭐⭐⭐⭐⭐\n\n\"[review text]\" – [first name]\n\nThanks for trusting us with your freight. Happy customer? Leave us a Google review, link in bio.",
   seo:"Customer review for Alpha Trucking: reliable, on-time interstate freight delivery across NSW, VIC, QLD and SA.",
   kw:"reliable freight company Australia, Alpha Trucking reviews",
   tags:BASE+" #CustomerReview #HappyCustomer #Freight",
-  why:"Average reach, but reviews build trust and asking for more reviews boosts local SEO."},
- {id:"o13",d:19,dow:"Mon",time:"12:00 pm",plats:["LinkedIn","Facebook","Google Business Profile"],fmt:"Single image + pinned post",grow:"High",goal:"Leads",
-  title:"Peak season is coming: book Christmas freight early",
+  why:"Average reach, but reviews build trust and more reviews help local SEO."},
+ {id:"o13",m:10,d:19,time:"12:00 pm",plats:["LinkedIn","Facebook","Google Business"],fmt:"Image, pinned",grow:"High",goal:"Leads",
+  title:"Book Christmas freight early",
   make:"Truck photo with bold text: 'Christmas freight? Book before [date].' Pin it to the top of Facebook for the rest of October.",
   caption:"Christmas is the busiest time of year on Australian roads. 🎄🚛\n\nIf you need stock moved interstate before the holidays, book now to lock in your pick-up dates. Sydney, Melbourne, Brisbane and Adelaide.\n\nGet a quote: 1300 025 742 or info@alphatrucking.com.au",
   seo:"Book Christmas freight early with Alpha Trucking: interstate delivery between Sydney, Melbourne, Brisbane and Adelaide before the holiday rush.",
   kw:"Christmas freight Australia, book interstate freight, peak season freight Sydney",
   tags:BASE+" #ChristmasFreight #PeakSeason #SmallBusinessAustralia #Logistics",
-  why:"Clear buying intent at the right moment. Expect quote requests, not just likes."},
- {id:"o14",d:21,dow:"Wed",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (trend format)",grow:"High",goal:"Reach",
+  why:"Buying intent at the right moment. Expect quote requests, not just likes."},
+ {id:"o14",m:10,d:21,time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel, trend format",grow:"High",goal:"Reach",
   title:"Things people ask truck drivers",
-  make:"Driver on camera reacting to on-screen questions: 'Do you sleep in the truck?', 'How many gears?', 'Is it boring?' Quick cuts, funny honest answers.",
+  make:"Driver reacting to on-screen questions: 'Do you sleep in the truck?', 'How many gears?', 'Is it boring?' Quick cuts, honest answers.",
   caption:"We asked our drivers the questions everyone wants to ask. 😂\n\nWhich one surprised you? Comment below 👇",
   seo:"Alpha Trucking drivers answer the most common questions about life as an interstate truck driver in Australia.",
   kw:"truck driver life Australia, interstate trucking",
   tags:BASE+" #TruckLife #AussieTruckies #TruckDriver #Trucking",
-  why:"Question-and-answer Reels get comments, which pushes reach to non-followers."},
- {id:"o15",d:22,dow:"Thu",time:"10:00 am",plats:["Google Business Profile","Facebook","LinkedIn"],fmt:"Photo post",grow:"Medium",goal:"SEO",
-  title:"Route spotlight: Melbourne → Brisbane and Gold Coast → Brisbane",
-  make:"Truck photo on the highway plus a small route map. Mention both runs with transit times and freight types.",
+  why:"Q&A Reels get comments, which pushes reach to non-followers."},
+ {id:"o15",m:10,d:22,time:"10:00 am",plats:["Google Business","Facebook","LinkedIn"],fmt:"Photo post",grow:"Medium",goal:"SEO",
+  title:"Route spotlight: Melbourne and Gold Coast → Brisbane",
+  make:"Highway truck photo plus a small route map. Both runs with transit times and freight types.",
   caption:"Moving freight up the east coast? 🗺️\n\nAlpha Trucking runs Melbourne → Brisbane and Gold Coast → Brisbane, with general freight, pallets and containers.\n\nAsk for your quote: 1300 025 742",
   seo:"Melbourne to Brisbane and Gold Coast to Brisbane freight with Alpha Trucking: road transport for general freight, pallets and containers.",
   kw:"Melbourne to Brisbane freight, Gold Coast to Brisbane freight, Brisbane road freight",
   tags:BASE+" #BrisbaneFreight #MelbourneFreight #GoldCoast #InterstateFreight",
-  why:"Route posts rank for high-intent searches. Modest social reach, strong SEO value."},
- {id:"o16",d:23,dow:"Fri",time:"12:30 pm",plats:["Instagram","LinkedIn","Pinterest"],fmt:"Carousel (6 slides)",grow:"High",goal:"Saves",
-  title:"Parcel, pallet or full truckload: which do you need?",
-  make:"Simple comparison slides: size, weight range, typical use, and a 'still unsure? ask us' final slide. Re-upload as a LinkedIn PDF.",
-  caption:"Parcel, pallet or full truckload? 🤔\n\nPicking the wrong one costs you money. Swipe for a quick guide to choosing the right freight service for your shipment.\n\nStill not sure? Send us your dimensions and we'll tell you.",
+  why:"Route posts rank for high-intent searches. Modest reach, strong SEO."},
+ {id:"o16",m:10,d:23,time:"12:30 pm",plats:["Instagram","LinkedIn","Pinterest"],fmt:"Carousel, 6 slides",grow:"High",goal:"Saves",
+  title:"Parcel, pallet or full truckload?",
+  make:"Comparison slides: size, weight range, typical use, and a 'still unsure? ask us' final slide. Re-upload as a LinkedIn PDF.",
+  caption:"Parcel, pallet or full truckload? 🤔\n\nPicking the wrong one costs you money. Swipe for a quick guide to the right freight service for your shipment.\n\nStill not sure? Send us your dimensions and we'll tell you.",
   seo:"Parcel vs pallet vs full truckload freight: a quick guide from Alpha Trucking to choosing the right delivery service in Australia.",
   kw:"parcel vs pallet delivery, full truckload freight Australia, pallet delivery Sydney",
   tags:BASE+" #PalletDelivery #ParcelDelivery #ShippingTips #Ecommerce",
-  why:"Answers a real buyer question, gets saved, and leads straight into a quote."},
- {id:"o17",d:27,dow:"Tue",time:"8:00 am",plats:["LinkedIn"],fmt:"Text + photo",grow:"Medium",goal:"Trust",
-  title:"Our growth story (with real numbers)",
-  make:"Founder or manager photo next to the fleet. Share real milestones: trucks added, routes opened, staff hired since starting.",
+  why:"Answers a real buyer question, gets saved, and leads to a quote."},
+ {id:"o17",m:10,d:27,time:"8:00 am",plats:["LinkedIn"],fmt:"Text + photo",grow:"Medium",goal:"Trust",
+  title:"Our growth story, in real numbers",
+  make:"Founder or manager photo with the fleet. Real milestones: trucks added, routes opened, staff hired.",
   caption:"When we started Alpha Trucking, we had [x] trucks and one route.\n\nToday: [x] trucks, [x] interstate routes, [x] team members, across NSW, VIC, QLD and SA.\n\nThank you to every customer who took a chance on us. Next goal: [goal].",
   seo:"The Alpha Trucking growth story: from one route to interstate freight across NSW, Victoria, Queensland and South Australia.",
   kw:"fastest growing freight company Australia, Sydney trucking company",
   tags:BASE+" #SmallBusiness #GrowthStory #Logistics #Trucking",
   why:"Founder posts do well on LinkedIn. Real numbers make it believable."},
- {id:"o18",d:28,dow:"Wed",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (30 s)",grow:"High",goal:"Reach",
-  title:"4am at the depot: a day in the life",
-  make:"Short clips from the first truck out: lights on, coffee, pre-trip check, gate opening, truck on the M4 at sunrise. Voice-over or on-screen text.",
+ {id:"o18",m:10,d:28,time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel, 30 s",grow:"High",goal:"Reach",
+  title:"4 am at the depot",
+  make:"Clips from the first truck out: lights on, coffee, pre-trip check, gate opening, truck on the M4 at sunrise.",
   caption:"While Sydney sleeps, we're already on the road. 🌅\n\nA day in the life at Alpha Trucking, from the 4am start to the first delivery.",
   seo:"A day in the life at Alpha Trucking: early starts at our North St Marys depot and interstate freight runs from Western Sydney.",
   kw:"trucking company Western Sydney, day in the life truck driver",
   tags:BASE+" #DayInTheLife #TruckLife #WesternSydney #AussieTruckies",
-  why:"Sunrise and behind-the-scenes clips are easy to watch and build a following over time."},
- {id:"o19",d:29,dow:"Thu",time:"8:00 am",plats:["LinkedIn","Facebook","Google Business Profile"],fmt:"Carousel / single image",grow:"Medium",goal:"Leads",
-  title:"Is your freight insured? What transit cover means",
-  make:"3–4 slides in plain words: what transit insurance covers, what it doesn't, and how to add it with Alpha Trucking. Link to your Insurance page.",
-  caption:"\"Is my freight insured?\" is one of the questions we hear most.\n\nHere's what transit insurance covers, what it doesn't, and how to add it when you book with Alpha Trucking. Details on our Insurance page.",
+  why:"Sunrise and behind-the-scenes clips are easy to watch and build a following."},
+ {id:"o19",m:10,d:29,time:"8:00 am",plats:["LinkedIn","Facebook","Google Business"],fmt:"Carousel",grow:"Medium",goal:"Leads",
+  title:"Freight insurance explained",
+  make:"3–4 slides: what transit insurance covers, what it doesn't, how to add it. Link to your Insurance page.",
+  caption:"\"Is my freight insured?\" is one of the questions we hear most.\n\nHere's what transit insurance covers, what it doesn't, and how to add it when you book with Alpha Trucking.",
   seo:"Freight insurance explained: what transit cover includes and how to insure your shipment with Alpha Trucking in Australia.",
   kw:"freight insurance Australia, transit insurance for freight, insured freight delivery",
   tags:BASE+" #FreightInsurance #ShippingTips #Logistics",
-  why:"Answers a question buyers have before booking. Moderate reach, good for trust and conversions."},
- {id:"o20",d:31,dow:"Sat",time:"6:30 pm",plats:["Instagram","Facebook"],fmt:"Meme / short Reel",grow:"Medium",goal:"Engagement",
+  why:"Answers a question buyers have before booking. Good for conversions."},
+ {id:"o20",m:10,d:31,time:"6:30 pm",plats:["Instagram","Facebook"],fmt:"Meme or short Reel",grow:"Medium",goal:"Engagement",
   title:"Halloween: the scariest things in freight",
-  make:"Spooky-style meme or 10-second Reel: 'Scariest things in freight: 👻 no pallet label, 🎃 \"it's only light\" (it's 800 kg), 💀 \"can you pick up in 10 minutes?\"'",
+  make:"Meme or 10-second Reel: no pallet label, 'it's only light' (it's 800 kg), 'can you pick up in 10 minutes?'",
   caption:"The scariest things in freight 👻🎃\n\n1. A pallet with no label\n2. \"It's pretty light\" (it's 800 kg)\n3. \"Can you pick up in 10 minutes?\"\n\nWhat's yours? Tag someone who's been there.",
   seo:"Halloween freight humour from Alpha Trucking: the scariest things every logistics team and truck driver has faced.",
   kw:"logistics humour, freight memes Australia",
   tags:BASE+" #Halloween #LogisticsLife #TruckerHumor",
-  why:"Relatable humour gets tags and shares. Won't bring leads directly, but grows the audience."}
+  why:"Relatable humour gets tags and shares. Grows the audience more than leads."},
+
+ {id:"n1",m:11,d:3,time:"12:00 pm",plats:["Instagram","Facebook"],fmt:"Reel, 15 s",grow:"High",goal:"Reach",
+  title:"Melbourne Cup: our freight doesn't stop",
+  make:"Film a truck on the Hume Highway around race time. Hook: 'The race that stops a nation. Our freight doesn't.'",
+  caption:"The race that stops a nation. 🏇\nOur freight doesn't. 🚛\n\nHappy Melbourne Cup from everyone on the road today.",
+  seo:"Alpha Trucking keeps interstate freight moving between Sydney and Melbourne on Melbourne Cup Day 2026.",
+  kw:"Sydney to Melbourne freight, Melbourne Cup freight",
+  tags:BASE+" #MelbourneCup #TheRaceThatStopsANation #AussieTruckies",
+  why:"Rides a national moment. Timely posts get pushed to more people."},
+ {id:"n2",m:11,d:6,time:"12:30 pm",plats:["Instagram","Facebook"],fmt:"Photo, weekly on Fridays",grow:"Medium",goal:"Engagement",
+  title:"Movember: team moustache check-in",
+  make:"Team photo every Friday in November (6, 13, 20, 27) showing moustache progress. Link your fundraising page.",
+  caption:"Week [x] of Movember at Alpha Trucking. 🥸\n\nThe moustaches are… progressing. Help us support men's health: [link].",
+  seo:"The Alpha Trucking team grows moustaches for Movember 2026 to support men's health in the trucking industry.",
+  kw:"Movember trucking, men's health truck drivers",
+  tags:BASE+" #Movember #MensHealth #AussieTruckies",
+  why:"A fun weekly series. Builds community, not leads."},
+ {id:"n3",m:11,d:11,time:"11:00 am",plats:["Facebook","LinkedIn"],fmt:"Single image",grow:"Low",goal:"Community",
+  title:"Remembrance Day",
+  make:"A simple, respectful image. Post at 11 am. No selling.",
+  caption:"Lest we forget. 🌺\n\nAt 11am today, the Alpha Trucking team pauses to remember those who served.",
+  seo:"Alpha Trucking observes Remembrance Day 2026.",
+  kw:"Remembrance Day 2026",
+  tags:"#LestWeForget #RemembranceDay",
+  why:"Not for growth. Right thing to post, keep it simple."},
+ {id:"n4",m:11,d:16,time:"12:00 pm",plats:["LinkedIn","Facebook","Instagram","Google Business"],fmt:"Carousel, pinned",grow:"High",goal:"Leads",
+  title:"Christmas cut-off dates, by route",
+  make:"One slide per route with the last booking and pick-up date before Christmas. Pin on Facebook and post on Google Business.",
+  caption:"📅 Christmas freight cut-off dates are here.\n\nBook by these dates to get your freight delivered before the break:\n→ Sydney–Melbourne: [date]\n→ Sydney–Adelaide: [date]\n→ Melbourne–Brisbane: [date]\n\nSave this post. Book now: 1300 025 742",
+  seo:"Alpha Trucking Christmas 2026 freight cut-off dates for Sydney, Melbourne, Brisbane and Adelaide interstate delivery.",
+  kw:"Christmas freight cut off dates 2026, interstate freight Christmas",
+  tags:BASE+" #ChristmasFreight #CutOffDates #PeakSeason",
+  why:"The most useful post of the season. Gets saved and shared by customers."},
+ {id:"n5",m:11,d:19,time:"8:00 am",plats:["LinkedIn"],fmt:"PDF document",grow:"Medium",goal:"Leads",
+  title:"Route spotlight: Sydney → Adelaide",
+  make:"5-page PDF like the Sydney–Melbourne one: map, transit time, freight types, quote page.",
+  caption:"Sydney to Adelaide freight, explained in 5 pages.\n\n→ Transit time: [x] days\n→ General freight, pallets and containers\n\nNeed a quote? Message us.",
+  seo:"Sydney to Adelaide freight with Alpha Trucking: transit times and freight types for interstate road transport.",
+  kw:"Sydney to Adelaide freight, Adelaide road freight",
+  tags:BASE+" #SydneyToAdelaide #InterstateFreight #Logistics",
+  why:"Targets buyers searching this exact route."},
+ {id:"n6",m:11,d:24,time:"8:00 am",plats:["LinkedIn","Facebook"],fmt:"Case study",grow:"High",goal:"Leads",
+  title:"Case study: moving a client's stock before Christmas",
+  make:"Get a client's permission. Write the problem, what you did and the result, with one real photo.",
+  caption:"[Client] needed [x] pallets in Melbourne before Christmas. Here's how we did it:\n\n→ The problem: [ ]\n→ What we did: [ ]\n→ The result: [ ]\n\nGot a deadline? We're good at those.",
+  seo:"Alpha Trucking case study: delivering a client's Christmas stock interstate on a tight deadline.",
+  kw:"freight case study Australia, reliable interstate freight",
+  tags:BASE+" #CaseStudy #Logistics #SupplyChain",
+  why:"Proof from a real customer is the best lead format on LinkedIn."},
+ {id:"n7",m:11,d:27,time:"12:00 pm",plats:["Instagram","Facebook","LinkedIn"],fmt:"Image",grow:"Medium",goal:"Leads",
+  title:"Black Friday: for online retailers",
+  make:"Warehouse photo with text: 'Selling big this weekend? Your pallets need to move Monday.'",
+  caption:"Black Friday sales are live. 🛒\n\nIf your orders are flying out, we'll get your stock where it needs to be. Pallets, parcels and full loads, interstate.\n\nBook your pick-up: 1300 025 742",
+  seo:"Freight for Black Friday 2026: Alpha Trucking moves e-commerce pallets and parcels between Sydney, Melbourne, Brisbane and Adelaide.",
+  kw:"ecommerce freight Australia, Black Friday freight",
+  tags:BASE+" #BlackFriday #Ecommerce #SmallBusinessAustralia",
+  why:"Reaches online sellers at a busy moment. Average reach."},
+ {id:"n8",m:11,d:30,time:"12:00 pm",plats:["Instagram","Facebook"],fmt:"Story + image",grow:"Medium",goal:"Leads",
+  title:"Cyber Monday: book pick-ups this week",
+  make:"Reuse the Black Friday design with 'Cyber Monday' and this week's pick-up days.",
+  caption:"Cyber Monday orders in? 📦 Book your pick-ups for this week now, before the Christmas rush peaks.",
+  seo:"Book freight pick-ups after Cyber Monday 2026 with Alpha Trucking.",
+  kw:"Cyber Monday freight, book freight pick up",
+  tags:BASE+" #CyberMonday #Ecommerce",
+  why:"Follow-up to Black Friday. Low effort."},
+
+ {id:"d1",m:12,d:1,time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Stories + Reels, daily to 12 Dec",grow:"High",goal:"Reach",
+  title:"12 Days of Freight Tips begins",
+  make:"One short tip a day, 1–12 December. Ideas: label two sides, measure before booking, book early, wrap to the base, use corner boards, add insurance, check access for trucks, share a contact name, give delivery windows, photograph freight before pick-up, keep paperwork with freight, ask about tail-lift.",
+  caption:"🎄 12 Days of Freight Tips, Day 1: [tip]\n\nFollow along for a new tip every day until 12 December.",
+  seo:"12 Days of Freight Tips from Alpha Trucking: daily shipping advice for businesses before Christmas 2026.",
+  kw:"freight tips, shipping tips Christmas",
+  tags:BASE+" #12DaysOfFreight #ShippingTips",
+  why:"A daily series builds a habit of checking your page."},
+ {id:"d2",m:12,d:7,time:"12:00 pm",plats:["LinkedIn","Facebook","Instagram"],fmt:"Image",grow:"High",goal:"Leads",
+  title:"Christmas cut-off countdown",
+  make:"Countdown graphic: '[x] days left to book interstate freight before Christmas.'",
+  caption:"⏳ [x] days left to book interstate freight before Christmas.\n\nDon't miss the cut-off. Book now: 1300 025 742",
+  seo:"Last days to book Christmas 2026 interstate freight with Alpha Trucking.",
+  kw:"Christmas freight deadline, last day to ship Christmas",
+  tags:BASE+" #ChristmasFreight #CutOffDates",
+  why:"Urgency drives bookings."},
+ {id:"d3",m:12,d:14,time:"12:00 pm",plats:["LinkedIn","Facebook","Instagram"],fmt:"Image",grow:"High",goal:"Leads",
+  title:"Final cut-off reminder",
+  make:"Same countdown design, final week.",
+  caption:"Last call 🚨 This is the final week to book freight for delivery before Christmas.",
+  seo:"Final week to book Christmas 2026 freight with Alpha Trucking.",
+  kw:"last day to ship before Christmas Australia",
+  tags:BASE+" #ChristmasFreight #LastCall",
+  why:"The final push. Many late bookings come from this post."},
+ {id:"d4",m:12,d:16,time:"12:30 pm",plats:["Instagram","Facebook","LinkedIn"],fmt:"Team photo",grow:"Medium",goal:"Trust",
+  title:"Thank you from the team",
+  make:"Drivers and warehouse staff together, names with permission.",
+  caption:"From all of us at Alpha Trucking: thank you for a huge 2026. 🎄\n\nEvery load you trusted us with helped us grow.",
+  seo:"A Christmas thank-you from the Alpha Trucking team to our customers.",
+  kw:"Alpha Trucking team",
+  tags:BASE+" #ThankYou #MerryChristmas",
+  why:"Real team photos do far better than logo-only greetings."},
+ {id:"d5",m:12,d:18,time:"9:00 am",plats:["Facebook","Google Business"],fmt:"Image, pinned",grow:"Low",goal:"Service",
+  title:"Holiday trading hours",
+  make:"Hours graphic. Also update your hours in Google Business Profile.",
+  caption:"Our Christmas and New Year hours 🗓️\n\n[your hours]\n\nUrgent freight? WhatsApp us.",
+  seo:"Alpha Trucking Christmas and New Year 2026 trading hours.",
+  kw:"freight company Christmas hours Sydney",
+  tags:BASE+" #HolidayHours",
+  why:"Needed for customers. Won't grow the page."},
+ {id:"d6",m:12,d:28,time:"7:00 pm",plats:["Instagram","Facebook","LinkedIn"],fmt:"Reel, 30–45 s",grow:"High",goal:"Reach",
+  title:"2026: our year in review",
+  make:"Best clips of the year with real numbers: kilometres, loads, new routes, new trucks.",
+  caption:"2026 in [x] seconds. 🚛\n\n[x] km driven · [x] loads delivered · [x] new routes\n\nThank you for riding with us. Bring on 2027.",
+  seo:"Alpha Trucking 2026 year in review: kilometres driven, loads delivered and new interstate routes.",
+  kw:"Alpha Trucking 2026",
+  tags:BASE+" #YearInReview #2026",
+  why:"Year-end recaps get shared by staff and customers."},
+ {id:"d7",m:12,d:30,time:"8:00 am",plats:["LinkedIn"],fmt:"Text post",grow:"Medium",goal:"Leads",
+  title:"Planning your 2027 freight?",
+  make:"Short post inviting contract and quote conversations for the new year.",
+  caption:"Planning your freight for 2027?\n\nNow is a good time to lock in regular runs and rates. Message us and we'll put together a plan.",
+  seo:"Plan 2027 interstate freight contracts with Alpha Trucking.",
+  kw:"freight contract Australia, regular freight service",
+  tags:BASE+" #Logistics #Planning2027",
+  why:"Catches business owners planning the new year."}
 ];
-
-const PLATS=["All","LinkedIn","Instagram","Facebook","Pinterest","Google Business Profile"];
-const GROWS=["All","High","Medium","Low"];
-const EVENTS={1:"Safe Work Month",5:"Labour Day / King's Bday",10:"Mental Health Day",31:"Halloween"};
-let fPlat="All",fGrow="All";
-let done={};
-try{done=JSON.parse(localStorage.getItem("at-done")||"{}")}catch(e){done={}}
-const save=()=>{try{localStorage.setItem("at-done",JSON.stringify(done))}catch(e){}};
+const EVENTS={10:{1:"Safe Work Month",5:"Labour Day",10:"Mental Health Day",31:"Halloween"},11:{3:"Melbourne Cup",11:"Remembrance",27:"Black Friday",30:"Cyber Monday"},12:{25:"Christmas",26:"Boxing Day",31:"New Year's Eve"}};
+const MONTHS={10:"October",11:"November",12:"December"};
+const dateOf=p=>new Date(2026,p.m-1,p.d);
+const wd=dt=>dt.toLocaleDateString("en-AU",{weekday:"short"});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const gdot=g=>g==="High"?"dotH":g==="Medium"?"dotM":"dotL";
+const pdots=ps=>`<span class="pdots">${ps.map(x=>`<i style="background:var(${PL[x]})" title="${x}"></i>`).join("")}</span>`;
+const CHECK='<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>';
 
-function month(){
-  const m=document.getElementById("month");
+let done={};try{done=JSON.parse(localStorage.getItem("at-done")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("at-done",JSON.stringify(done))}catch(e){}};
+const today=new Date();today.setHours(0,0,0,0);
+const sorted=[...posts].sort((a,b)=>dateOf(a)-dateOf(b));
+const nextPost=sorted.find(p=>dateOf(p)>=today);
+let month=nextPost?nextPost.m:10, fPlat="All", fGrow="All";
+
+function rel(p){const n=Math.round((dateOf(p)-today)/864e5);return n===0?"Today":n===1?"Tomorrow":`In ${n} days`}
+function renderUpNext(){
+  const el=document.getElementById("upnext");
+  if(!nextPost){el.innerHTML=`<div style="grid-column:1/-1"><h3>The 2026 calendar is complete.</h3><p>Time to plan 2027.</p></div>`;return}
+  const p=nextPost,dt=dateOf(p);
+  el.innerHTML=`<div class="dateTile"><div class="mo">${MONTHS[p.m].slice(0,3)}</div><div class="dd num">${p.d}</div><div class="wd">${wd(dt)}</div></div>
+  <div><div class="when">Up next · ${rel(p)} at ${p.time}</div><h3>${esc(p.title)}</h3><p>${esc(p.make)}</p>
+  <div class="row"><span class="pill g-${p.grow}"><i></i>${p.grow} growth</span>${p.plats.map(x=>`<span class="pill plat">${x}</span>`).join("")}</div>
+  <div class="row"><button class="btn" type="button" data-open="${p.id}">Open brief</button><span class="bell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 11V7a4 4 0 118 0v4l1 1.5H3L4 11z"/><path d="M6.5 14a1.5 1.5 0 003 0"/></svg>Reminder at 5:00 am the day before</span></div></div>`;
+}
+function renderTracks(){
+  const rows=[
+    {n:"LinkedIn",k:"LinkedIn",days:"Tue · Wed · Thu",w:[[7.5,9,"7:30–9"],[12,13,"12–1"]],job:"Leads, trust"},
+    {n:"Instagram",k:"Instagram",days:"Wed · Fri · Sun",w:[[12,13,"12–1"],[18.5,20.5,"6:30–8:30"]],job:"Reach, followers"},
+    {n:"Facebook",k:"Facebook",days:"Mon · Wed · Fri",w:[[12,13,"12–1"],[19,20,"7–8"]],job:"Reach, enquiries"},
+    {n:"Pinterest",k:"Pinterest",days:"Sat · Sun",w:[[20,22,"8–10 pm"]],job:"Long-term traffic"},
+    {n:"Google Business",k:"Google Business",days:"Weekly, any day",w:[[6,21,"Any time",1]],job:"Local SEO, calls"}
+  ];
+  const S=4,E=23,pos=h=>((h-S)/(E-S)*100).toFixed(2)+"%",wid=(a,b)=>((b-a)/(E-S)*100).toFixed(2)+"%";
+  let h=rows.map(r=>`<div class="trow"><div class="tname"><b><i style="background:var(${PL[r.k]})"></i>${r.n}</b><small>${r.days} · ${r.job}</small></div>
+    <div class="track"><span class="shift" style="left:${pos(5)}" title="Shift starts 5 am"></span>${r.w.map(w=>`<span class="win${w[3]?" soft":""}" style="left:${pos(w[0])};width:${wid(w[0],w[1])}">${w[2]}</span>`).join("")}</div></div>`).join("");
+  const ticks=[[6,"6am"],[9,"9am"],[12,"12pm"],[15,"3pm"],[18,"6pm"],[21,"9pm"]];
+  h+=`<div class="ticks"><span class="pad"></span><div class="scale">${ticks.map(t=>`<span style="left:${pos(t[0])}">${t[1]}</span>`).join("")}</div></div>
+  <div class="legend"><span><i style="background:var(--accent)"></i>Best window</span><span><i style="background:var(--med);width:3px;height:14px"></i>Your shift starts, 5 am</span></div>`;
+  document.getElementById("tracks").innerHTML=h;
+}
+function seg(id,items,get,set,label){
+  const el=document.getElementById(id);
+  el.innerHTML=items.map(v=>`<button type="button" data-v="${v}" aria-pressed="${String(v)===String(get())}">${label?label(v):v}</button>`).join("");
+  el.onclick=e=>{const b=e.target.closest("button");if(!b)return;set(isNaN(b.dataset.v)?b.dataset.v:+b.dataset.v);el.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderCal()};
+}
+const match=p=>(fPlat==="All"||p.plats.includes(fPlat))&&(fGrow==="All"||p.grow===fGrow);
+function renderCal(){
+  const m=month,first=(new Date(2026,m-1,1).getDay()+6)%7,days=new Date(2026,m,0).getDate();
+  const mp=posts.filter(p=>p.m===m),vis=mp.filter(match);
+  document.getElementById("calTitle").textContent=MONTHS[m]+" 2026";
+  document.getElementById("stats").innerHTML=`<span><b class="num">${mp.length}</b> posts</span><span><b class="num">${mp.filter(p=>p.grow==="High").length}</b> high growth</span><span><b class="num">${mp.filter(p=>done[p.id]).length}</b> posted</span>`;
   let h=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div class="dow">${d}</div>`).join("");
-  for(let i=0;i<3;i++)h+=`<div class="day empty"></div>`; // Oct 1 2026 is a Thursday
-  for(let d=1;d<=31;d++){
-    const ps=posts.filter(p=>p.d===d);
-    h+=`<div class="day"><span class="n">${d}</span>${EVENTS[d]?`<span class="ev">${EVENTS[d]}</span>`:""}${ps.map(p=>`<a href="#${p.id}" class="g-${p.grow}" title="${esc(p.title)}">${esc(p.title)}</a>`).join("")}</div>`;
+  for(let i=0;i<first;i++)h+=`<div class="cell blank"></div>`;
+  for(let d=1;d<=days;d++){
+    const ps=vis.filter(p=>p.d===d),isT=today.getFullYear()===2026&&today.getMonth()===m-1&&today.getDate()===d,ev=(EVENTS[m]||{})[d];
+    const inner=`<span class="n num">${d}</span>${ev?`<span class="ev">${ev}</span>`:""}<span class="its">${ps.map(p=>`<span class="it${done[p.id]?" done":""}"><i class="${gdot(p.grow)}"></i><span>${esc(p.title)}</span></span>`).join("")}</span>`;
+    h+=ps.length?`<button type="button" class="cell has${isT?" today":""}" data-open="${ps[0].id}" aria-label="${d} ${MONTHS[m]}: ${esc(ps.map(p=>p.title).join(", "))}">${inner}</button>`:`<div class="cell${isT?" today":""}">${inner}</div>`;
   }
-  const trail=(7-((3+31)%7))%7;
-  for(let i=0;i<trail;i++)h+=`<div class="day empty"></div>`;
-  m.innerHTML=h;
+  const tail=(7-((first+days)%7))%7;for(let i=0;i<tail;i++)h+=`<div class="cell blank"></div>`;
+  document.getElementById("cal").innerHTML=h;
+  document.getElementById("list").innerHTML=vis.length?vis.map(p=>`<button type="button" class="rowbtn${done[p.id]?" done":""}" data-open="${p.id}">
+    <span class="dt"><b class="num">${p.d}</b><small>${wd(dateOf(p))}</small></span>
+    <span class="tx"><strong>${esc(p.title)}</strong><span class="meta">${pdots(p.plats)}<span>${p.time}</span><span>·</span><span>${esc(p.fmt)}</span></span></span>
+    <span class="end"><span class="pill g-${p.grow}"><i></i>${p.grow}</span><span class="check${done[p.id]?" on":""}">${done[p.id]?CHECK:""}</span><span class="chev" aria-hidden="true">›</span></span></button>`).join(""):`<div class="empty">No posts match these filters.</div>`;
 }
-function filters(){
-  const mk=(el,list,get,set)=>{
-    list.forEach(v=>{const b=document.createElement("button");b.className="fbtn";b.type="button";b.textContent=v;b.setAttribute("aria-pressed",v===get());
-      b.onclick=()=>{set(v);el.querySelectorAll(".fbtn").forEach(x=>x.setAttribute("aria-pressed",x.textContent===v));render()};
-      el.insertBefore(b,el.querySelector(".progress"));});
-  };
-  mk(document.getElementById("platFilters"),PLATS,()=>fPlat,v=>fPlat=v);
-  mk(document.getElementById("growFilters"),GROWS,()=>fGrow,v=>fGrow=v);
+function openSheet(id){
+  const p=posts.find(x=>x.id===id);if(!p)return;const dt=dateOf(p);
+  const f=(l,v,c="")=>`<div class="field"><label>${l}</label><div class="${c}">${esc(v)}</div></div>`;
+  document.getElementById("sheetInner").innerHTML=`
+  <div class="sheet-top"><span class="pill g-${p.grow}"><i></i>${p.grow} growth</span><button class="x" type="button" data-close aria-label="Close">✕</button></div>
+  <div class="sheet-body">
+    <div><div class="kicker">${wd(dt)} ${p.d} ${MONTHS[p.m]} · ${p.time}</div><h2 id="sheetTitle" style="margin-top:6px">${esc(p.title)}</h2>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">${p.plats.map(x=>`<span class="pill plat"><i style="background:var(${PL[x]})"></i>${x}</span>`).join("")}<span class="pill plat">${esc(p.fmt)}</span></div></div>
+    <div class="fieldset">${f("What to make",p.make)}${f("Goal",p.goal)}${f("Grows or not",p.grow+". "+p.why)}</div>
+    <div class="fieldset">${f("Caption",p.caption)}${f("Hashtags",p.tags,"tags")}</div>
+    <div class="fieldset">${f("SEO description",p.seo)}${f("Keywords",p.kw)}</div>
+    <div class="actions"><button class="btn" type="button" data-copy="${p.id}">Copy caption</button>
+    <label class="switch"><input type="checkbox" id="sw-${p.id}" data-done="${p.id}" ${done[p.id]?"checked":""}>Posted</label></div>
+  </div>`;
+  const d=document.getElementById("sheet");if(!d.open)d.showModal();
 }
-function render(){
-  const list=posts.filter(p=>(fPlat==="All"||p.plats.includes(fPlat))&&(fGrow==="All"||p.grow===fGrow));
-  const el=document.getElementById("posts");
-  el.innerHTML=list.length?list.map(p=>`
-  <article class="post${done[p.id]?" done":""}" id="${p.id}">
-    <div class="when"><span class="d">${p.d}</span><span class="dw">${p.dow} · Oct</span><span class="t">${p.time}</span></div>
-    <div class="body">
-      <div class="top"><span class="pill g-${p.grow}">${p.grow} growth</span>${p.plats.map(x=>`<span class="pill plat">${x}</span>`).join("")}<span class="pill plat">${esc(p.fmt)}</span></div>
-      <h3>${esc(p.title)}</h3>
-      <dl class="kv">
-        <dt>What to make</dt><dd>${esc(p.make)}</dd>
-        <dt>Caption</dt><dd><div class="caption" id="cap-${p.id}">${esc(p.caption)}</div></dd>
-        <dt>SEO description</dt><dd>${esc(p.seo)}</dd>
-        <dt>Keywords</dt><dd>${esc(p.kw)}</dd>
-        <dt>Hashtags</dt><dd class="tags">${esc(p.tags)}</dd>
-        <dt>Main goal</dt><dd>${esc(p.goal)}</dd>
-        <dt>Grows or not</dt><dd class="why"><strong>${p.grow}.</strong> ${esc(p.why)}</dd>
-      </dl>
-      <div class="actions">
-        <button class="btn" type="button" data-copy="${p.id}">Copy caption + hashtags</button>
-        <label class="chk"><input type="checkbox" id="done-${p.id}" data-done="${p.id}" ${done[p.id]?"checked":""}> Posted</label>
-      </div>
-    </div>
-  </article>`).join(""):`<p class="empty-note">No posts match these filters. Choose "All" to see the full month.</p>`;
-  const n=posts.filter(p=>done[p.id]).length;
-  document.getElementById("progress").textContent=`${n} of ${posts.length} posted`;
-}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,1600)}
 document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-copy]");if(!b)return;
-  const p=posts.find(x=>x.id===b.dataset.copy);const text=p.caption+"\n\n"+p.tags;
-  const ok=()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy caption + hashtags",1500)};
-  const fallback=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("cap-"+p.id));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Selected, press Ctrl+C"};
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok,fallback)}else fallback();
+  const o=e.target.closest("[data-open]");if(o){openSheet(o.dataset.open);return}
+  if(e.target.closest("[data-close]")){document.getElementById("sheet").close();return}
+  const c=e.target.closest("[data-copy]");
+  if(c){const p=posts.find(x=>x.id===c.dataset.copy),text=p.caption+"\n\n"+p.tags;
+    const fb=()=>{const n=c.closest(".sheet-body").querySelectorAll(".field div")[3],r=document.createRange();r.selectNodeContents(n);const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Caption selected. Press Ctrl+C")};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>toast("Caption copied"),fb);else fb();}
 });
-document.addEventListener("change",e=>{
-  const id=e.target.dataset&&e.target.dataset.done;if(!id)return;
-  if(e.target.checked)done[id]=1;else delete done[id];save();render();
+document.getElementById("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")e.target.close()});
+document.addEventListener("change",e=>{const id=e.target.dataset&&e.target.dataset.done;if(!id)return;if(e.target.checked)done[id]=1;else delete done[id];save();renderCal();toast(e.target.checked?"Marked as posted":"Marked as not posted")});
+document.getElementById("navNext").onclick=()=>nextPost?openSheet(nextPost.id):document.getElementById("calendar").scrollIntoView();
+
+const up=[["Loading time-lapse Reels","Satisfying to watch and rewatched, which pushes reach."],["Heavy haulage and oversize moves","The most shared kind of trucking content."],["Driver videos and day in the life","Faces build followers and help you hire."],["How-to carousels","Saved and shared, and found in search."],["Cut-off and book-early posts","Direct buying intent. Brings quote requests."],["Customer case studies","The best LinkedIn format for leads."]];
+const down=[["\"Happy Monday\" quotes and stock photos","No reason to stop scrolling. Skip them."],["Plain \"we offer freight\" ads","Reads as an ad, low reach. Put the offer inside a tip."],["Logo-only holiday greetings","Use a real team photo instead."],["Same image on every platform","Resize and rewrite the first line for each."],["Opening hours notices","Needed, but keep them on Google Business and Stories."],["25+ hashtags","Use 5 to 8 specific tags. Caption keywords matter more."]];
+const UP='<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V3M3.5 6.5L7 3l3.5 3.5"/></svg>';
+const DN='<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M3.5 7.5L7 11l3.5-3.5"/></svg>';
+document.getElementById("growsUp").innerHTML=up.map(x=>`<li><span class="ic up">${UP}</span><div><b>${x[0]}</b><span>${x[1]}</span></div></li>`).join("");
+document.getElementById("growsDown").innerHTML=down.map(x=>`<li><span class="ic down">${DN}</span><div><b>${esc(x[0])}</b><span>${x[1]}</span></div></li>`).join("");
+
+renderUpNext();renderTracks();
+seg("monthSeg",[10,11,12],()=>month,v=>month=v,v=>MONTHS[v]);
+seg("growSeg",["All","High","Medium","Low"],()=>fGrow,v=>fGrow=v);
+(function(){const el=document.getElementById("platChips"),items=["All","LinkedIn","Instagram","Facebook","Pinterest","Google Business"];
+  el.innerHTML=items.map(v=>`<button type="button" data-v="${v}" aria-pressed="${v===fPlat}">${v==="All"?"All platforms":v}</button>`).join("");
+  el.onclick=e=>{const b=e.target.closest("button");if(!b)return;fPlat=b.dataset.v;el.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderCal()};})();
+renderCal();
+
+/* ---------- Analytics ---------- */
+const MK=["2026-10","2026-11","2026-12","2027-01","2027-02","2027-03"];
+const MS={"2026-10":"Oct","2026-11":"Nov","2026-12":"Dec","2027-01":"Jan","2027-02":"Feb","2027-03":"Mar"};
+const ML={"2026-10":"October 2026","2026-11":"November 2026","2026-12":"December 2026","2027-01":"January 2027","2027-02":"February 2027","2027-03":"March 2027"};
+const AP=["LinkedIn","Instagram","Facebook","Pinterest","Google Business"];
+const SC={"LinkedIn":"--s1","Instagram":"--s2","Facebook":"--s3","Pinterest":"--s4","Google Business":"--s5"};
+const FL=[["followers","Followers"],["reach","Reach"],["engagement","Engagement"],["clicks","Clicks"],["leads","Leads"]];
+const EXAMPLE={
+ "2026-10":{platforms:{LinkedIn:{followers:420,reach:6800,engagement:310,clicks:95,leads:4},Instagram:{followers:780,reach:14200,engagement:980,clicks:60,leads:3},Facebook:{followers:1150,reach:9800,engagement:540,clicks:120,leads:5},Pinterest:{followers:60,reach:2100,engagement:70,clicks:35,leads:0},"Google Business":{reach:3200,clicks:140,leads:9}}},
+ "2026-11":{platforms:{LinkedIn:{followers:510,reach:8900,engagement:420,clicks:130,leads:6},Instagram:{followers:1020,reach:22500,engagement:1600,clicks:85,leads:5},Facebook:{followers:1240,reach:11800,engagement:690,clicks:150,leads:7},Pinterest:{followers:95,reach:3900,engagement:120,clicks:60,leads:1},"Google Business":{reach:4100,clicks:180,leads:12}}},
+ "2026-12":{platforms:{LinkedIn:{followers:590,reach:9600,engagement:470,clicks:160,leads:8},Instagram:{followers:1310,reach:28400,engagement:2100,clicks:110,leads:6},Facebook:{followers:1330,reach:12900,engagement:760,clicks:170,leads:8},Pinterest:{followers:140,reach:5600,engagement:180,clicks:85,leads:1},"Google Business":{reach:4600,clicks:210,leads:14}}}
+};
+let metrics={},aMonth="2026-10",dirty=false,store=null,mode="loading";
+const num=v=>typeof v==="number"&&isFinite(v)?v:null;
+const fmtN=n=>n==null?"—":n>=1e6?(n/1e6).toFixed(1).replace(/\.0$/,"")+"M":n>=1e4?Math.round(n/1e3)+"k":n>=1e3?(n/1e3).toFixed(1).replace(/\.0$/,"")+"k":String(Math.round(n));
+const fmtFull=n=>n==null?"—":Math.round(n).toLocaleString("en-AU");
+const ds=()=>Object.keys(metrics).length?{d:metrics,ex:false}:{d:EXAMPLE,ex:true};
+const pv=(d,m,p,f)=>num(d[m]&&d[m].platforms&&d[m].platforms[p]&&d[m].platforms[p][f]);
+function tot(d,m,f){let s=0,any=false;AP.forEach(p=>{const v=pv(d,m,p,f);if(v!=null){s+=v;any=true}});return any?s:null}
+const rate=(d,m)=>{const e=tot(d,m,"engagement"),r=tot(d,m,"reach");return e!=null&&r?e/r*100:null};
+const niceMax=v=>{if(!v||v<=0)return 10;const p=10**Math.floor(Math.log10(v)),n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p};
+const monthsWith=d=>MK.filter(k=>d[k]);
+const css=v=>`var(${v})`;
+
+function delta(cur,prev,isRate){
+  if(cur==null||prev==null)return `<span class="dl flat">No previous month</span>`;
+  const diff=isRate?cur-prev:(prev===0?null:(cur-prev)/prev*100);
+  if(diff==null)return `<span class="dl flat">New</span>`;
+  const cls=diff>0.05?"up":diff<-0.05?"down":"flat",arrow=cls==="up"?"▲":cls==="down"?"▼":"●";
+  return `<span class="dl ${cls}">${arrow} ${Math.abs(diff).toFixed(1)}${isRate?" pts":"%"} vs last month</span>`;
+}
+function renderKpis(){
+  const {d,ex}=ds(),i=MK.indexOf(aMonth),prev=i>0?MK[i-1]:null;
+  const k=[["Followers",tot(d,aMonth,"followers"),prev&&tot(d,prev,"followers"),false,fmtN],
+           ["Reach",tot(d,aMonth,"reach"),prev&&tot(d,prev,"reach"),false,fmtN],
+           ["Engagement rate",rate(d,aMonth),prev&&rate(d,prev),true,v=>v==null?"—":v.toFixed(1)+"%"],
+           ["Leads",tot(d,aMonth,"leads"),prev&&tot(d,prev,"leads"),false,fmtN]];
+  document.getElementById("kpis").innerHTML=k.map(x=>`<div class="kpi"><span class="lb">${x[0]} · ${MS[aMonth]}</span><span class="vl">${x[4](x[1])}</span>${x[1]==null?`<span class="dl flat">${ex?"No example for this month":"Not entered yet"}</span>`:delta(x[1],x[2]||null,x[3])}</div>`).join("");
+  const n=d[aMonth]&&d[aMonth].notes;
+  document.getElementById("notesOut").innerHTML=n?`<div class="notesOut"><b>What worked in ${ML[aMonth]}</b>${esc(n)}</div>`:"";
+}
+function tipHTML(title,rows){return `<b>${title}</b>`+rows.map(r=>`<div class="r"><span>${r[2]?`<i style="background:${r[2]}"></i>`:""}${r[0]}</span><strong class="num">${r[1]}</strong></div>`).join("")}
+function placeTip(box,tip,x,y){tip.hidden=false;const bw=box.clientWidth,tw=tip.offsetWidth;let left=x+14;if(left+tw>bw)left=x-tw-14;tip.style.left=Math.max(0,left)+"px";tip.style.top=Math.max(0,y-10)+"px"}
+
+function lineChart(){
+  const el=document.getElementById("cFollowers"),{d}=ds(),ms=monthsWith(d);
+  const series=AP.filter(p=>ms.some(m=>pv(d,m,p,"followers")!=null));
+  document.getElementById("fLegend").innerHTML=series.map(p=>`<span><i style="background:${css(SC[p])}"></i>${p}</span>`).join("");
+  if(!ms.length||!series.length){el.innerHTML=`<p class="empty">No follower numbers yet.</p>`;return}
+  const W=680,H=260,L=44,R=108,T=14,B=28,iw=W-L-R,ih=H-T-B;
+  const max=niceMax(Math.max(...series.flatMap(p=>ms.map(m=>pv(d,m,p,"followers")||0))));
+  const x=i=>ms.length===1?L+iw/2:L+i*(iw/(ms.length-1)),y=v=>T+ih-(v/max)*ih;
+  let g="";
+  for(let t=0;t<=4;t++){const v=max*t/4,yy=y(v);g+=`<line x1="${L}" x2="${L+iw}" y1="${yy}" y2="${yy}" stroke="var(${t?"--grid":"--axis"})" stroke-width="1"/><text x="${L-8}" y="${yy+4}" text-anchor="end" class="num">${fmtN(v)}</text>`}
+  ms.forEach((m,i)=>g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${MS[m]}</text>`);
+  let lines="",dots="",labels=[];
+  series.forEach(p=>{
+    const pts=ms.map((m,i)=>[i,pv(d,m,p,"followers")]).filter(q=>q[1]!=null);
+    if(!pts.length)return;
+    lines+=`<path d="${pts.map((q,j)=>(j?"L":"M")+x(q[0]).toFixed(1)+" "+y(q[1]).toFixed(1)).join(" ")}" fill="none" stroke="${css(SC[p])}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach(q=>dots+=`<circle cx="${x(q[0])}" cy="${y(q[1])}" r="4" fill="${css(SC[p])}" stroke="var(--surface)" stroke-width="2"/>`);
+    const last=pts[pts.length-1];labels.push({p,x:x(last[0]),y:y(last[1]),v:last[1]});
+  });
+  labels.sort((a,b)=>a.y-b.y);for(let i=1;i<labels.length;i++)if(labels[i].y-labels[i-1].y<15)labels[i].y=labels[i-1].y+15;
+  const lab=labels.map(l=>`<text x="${l.x+10}" y="${l.y+4}" class="lbl">${l.p==="Google Business"?"Google":l.p} ${fmtN(l.v)}</text>`).join("");
+  const band=ms.length===1?iw:iw/(ms.length-1);
+  const hits=ms.map((m,i)=>`<rect x="${x(i)-band/2}" y="${T}" width="${band}" height="${ih}" fill="transparent" data-i="${i}" tabindex="0" aria-label="${ML[m]} followers"/>`).join("");
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Followers by platform, ${ms.map(m=>MS[m]).join(" to ")}">${g}<line id="fX" x1="0" x2="0" y1="${T}" y2="${T+ih}" stroke="var(--axis)" stroke-width="1" visibility="hidden"/>${lines}${dots}${lab}${hits}</svg><div class="tip" hidden></div>`;
+  const svg=el.querySelector("svg"),tip=el.querySelector(".tip"),cx=el.querySelector("#fX");
+  const show=i=>{const m=ms[i],px=x(i);cx.setAttribute("x1",px);cx.setAttribute("x2",px);cx.setAttribute("visibility","visible");
+    tip.innerHTML=tipHTML(ML[m],series.map(p=>[p,fmtFull(pv(d,m,p,"followers")),css(SC[p])]).concat([["Total",fmtFull(tot(d,m,"followers"))]]));
+    const s=el.clientWidth/W;placeTip(el,tip,px*s,T*s+20)};
+  const hide=()=>{tip.hidden=true;cx.setAttribute("visibility","hidden")};
+  svg.querySelectorAll("rect[data-i]").forEach(r=>{r.addEventListener("mouseenter",()=>show(+r.dataset.i));r.addEventListener("focus",()=>show(+r.dataset.i));r.addEventListener("blur",hide)});
+  svg.addEventListener("mouseleave",hide);
+}
+function barChart(id,field,label){
+  const el=document.getElementById(id),{d}=ds(),ms=monthsWith(d).filter(m=>tot(d,m,field)!=null);
+  if(!ms.length){el.innerHTML=`<p class="empty">No ${label.toLowerCase()} numbers yet.</p>`;return}
+  const W=360,H=230,L=40,R=8,T=22,B=26,iw=W-L-R,ih=H-T-B,max=niceMax(Math.max(...ms.map(m=>tot(d,m,field))));
+  const bandW=iw/Math.max(ms.length,3),bw=Math.min(40,bandW*.55),y=v=>T+ih-(v/max)*ih;
+  let g="";for(let t=0;t<=4;t++){const v=max*t/4,yy=y(v);g+=`<line x1="${L}" x2="${L+iw}" y1="${yy}" y2="${yy}" stroke="var(${t?"--grid":"--axis"})"/><text x="${L-6}" y="${yy+4}" text-anchor="end" class="num">${fmtN(v)}</text>`}
+  let bars="";
+  ms.forEach((m,i)=>{const v=tot(d,m,field),cx=L+bandW*i+bandW/2,x0=cx-bw/2,yy=y(v),h=T+ih-yy,r=Math.min(4,h);
+    bars+=`<path d="M${x0} ${T+ih}V${yy+r}Q${x0} ${yy} ${x0+r} ${yy}H${x0+bw-r}Q${x0+bw} ${yy} ${x0+bw} ${yy+r}V${T+ih}Z" fill="var(--s1)"/>`;
+    if(i===ms.length-1)bars+=`<text x="${cx}" y="${yy-6}" text-anchor="middle" class="val">${fmtN(v)}</text>`;
+    bars+=`<text x="${cx}" y="${H-8}" text-anchor="middle">${MS[m]}</text><rect x="${cx-bandW/2}" y="${T}" width="${bandW}" height="${ih}" fill="transparent" data-i="${i}" tabindex="0" aria-label="${ML[m]} ${label}: ${fmtFull(v)}"/>`});
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} by month">${g}${bars}</svg><div class="tip" hidden></div>`;
+  const svg=el.querySelector("svg"),tip=el.querySelector(".tip");
+  const show=i=>{const m=ms[i],s=el.clientWidth/W;tip.innerHTML=tipHTML(`${ML[m]} · ${fmtFull(tot(d,m,field))}`,AP.filter(p=>pv(d,m,p,field)!=null).map(p=>[p,fmtFull(pv(d,m,p,field)),css(SC[p])]));placeTip(el,tip,(L+bandW*i+bandW/2)*s,T*s+10)};
+  svg.querySelectorAll("rect[data-i]").forEach(r=>{r.addEventListener("mouseenter",()=>show(+r.dataset.i));r.addEventListener("focus",()=>show(+r.dataset.i));r.addEventListener("blur",()=>tip.hidden=true)});
+  svg.addEventListener("mouseleave",()=>tip.hidden=true);
+}
+function renderAllTable(){
+  const {d}=ds(),ms=monthsWith(d);
+  document.getElementById("allTable").innerHTML=ms.length?`<table><thead><tr><th>Month</th><th>Followers</th><th>Reach</th><th>Engagement</th><th>Eng. rate</th><th>Clicks</th><th>Leads</th></tr></thead><tbody>${ms.map(m=>`<tr><td>${ML[m]}</td><td class="num">${fmtFull(tot(d,m,"followers"))}</td><td class="num">${fmtFull(tot(d,m,"reach"))}</td><td class="num">${fmtFull(tot(d,m,"engagement"))}</td><td class="num">${rate(d,m)==null?"—":rate(d,m).toFixed(1)+"%"}</td><td class="num">${fmtFull(tot(d,m,"clicks"))}</td><td class="num">${fmtFull(tot(d,m,"leads"))}</td></tr>`).join("")}</tbody></table>`:`<p class="empty">No months saved yet.</p>`;
+}
+function renderStatus(){
+  const {ex}=ds(),el=document.getElementById("aStatus");
+  const base=mode==="db"?"Saved to this page, synced for everyone with access":mode==="local"?"Saved in this browser only":"Connecting…";
+  el.innerHTML=ex?`<span class="exampleBadge">Example numbers. Save your first month to replace them</span>`:base;
+}
+function fillForm(){
+  const m=metrics[aMonth],P=(m&&m.platforms)||{};
+  document.getElementById("entryTitle").textContent=`Enter numbers for ${ML[aMonth]}`;
+  document.getElementById("entryTable").innerHTML=`<table><thead><tr><th>Platform</th>${FL.map(f=>`<th>${f[1]}</th>`).join("")}</tr></thead><tbody>${AP.map(p=>`<tr><td><i style="background:${css(SC[p])}"></i>${p}</td>${FL.map(f=>{const v=P[p]&&num(P[p][f[0]]);return `<td><input type="number" min="0" step="1" inputmode="numeric" id="in-${p.replace(/\s/g,"")}-${f[0]}" data-p="${p}" data-f="${f[0]}" value="${v==null?"":v}" placeholder="—" aria-label="${p} ${f[1]}"></td>`}).join("")}</tr>`).join("")}</tbody></table>`;
+  document.getElementById("aNotes").value=(m&&m.notes)||"";
+  document.getElementById("entryMsg").textContent=m&&m.updatedAt?`Last saved ${new Date(m.updatedAt).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}`:"";
+  dirty=false;
+}
+function renderAnalytics(){renderStatus();renderKpis();lineChart();barChart("cReach","reach","Reach");barChart("cLeads","leads","Leads");renderAllTable()}
+(function(){
+  const el=document.getElementById("aMonthSeg");
+  el.innerHTML=MK.map(k=>`<button type="button" data-v="${k}" aria-pressed="${k===aMonth}">${MS[k]}</button>`).join("");
+  el.onclick=e=>{const b=e.target.closest("button");if(!b)return;aMonth=b.dataset.v;el.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));fillForm();renderAnalytics()};
+})();
+document.getElementById("entry").addEventListener("input",()=>{dirty=true});
+document.getElementById("entry").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const platforms={};
+  document.querySelectorAll("#entryTable input").forEach(i=>{const v=i.value.trim();if(v==="")return;const n=Math.max(0,Math.round(+v));if(!isFinite(n))return;(platforms[i.dataset.p]=platforms[i.dataset.p]||{})[i.dataset.f]=n});
+  const doc={month:aMonth,platforms,notes:document.getElementById("aNotes").value.trim(),updatedAt:new Date().toISOString()};
+  const btn=document.getElementById("saveBtn"),msg=document.getElementById("entryMsg");btn.disabled=true;msg.textContent="Saving…";
+  try{
+    if(mode==="db")await store.doc("metrics/"+aMonth).set(doc);
+    else{metrics[aMonth]=doc;try{localStorage.setItem("at-metrics",JSON.stringify(metrics))}catch(_){}}
+    metrics[aMonth]=doc;dirty=false;renderAnalytics();fillForm();toast(`${ML[aMonth]} numbers saved`);
+  }catch(err){
+    msg.textContent=err&&err.code==="invalid_argument"?"You can view these numbers but not change them. Ask the page owner for edit access.":err&&err.code==="quota_exceeded"?"Storage is full, so this month could not be saved.":"Couldn't save just now. Check your connection and press Save again.";
+  }finally{btn.disabled=false}
 });
-month();filters();render();
+fillForm();renderAnalytics();
+(async()=>{
+  let db=null;try{db=window.claude&&window.claude.use?await window.claude.use("db"):null}catch(_){db=null}
+  if(db){store=db;mode="db";
+    db.collection("metrics").onSnapshot(s=>{metrics={};s.docs.forEach(x=>{if(x.exists&&MS[x.id])metrics[x.id]=x.data()});renderAnalytics();if(!dirty)fillForm()},
+      ()=>{document.getElementById("aStatus").textContent="Live sync stopped. Reload the page to reconnect."});
+  }else{mode="local";try{metrics=JSON.parse(localStorage.getItem("at-metrics")||"{}")||{}}catch(_){metrics={}}renderAnalytics();fillForm()}
+})();
 </script>
