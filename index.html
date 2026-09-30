@@ -1,0 +1,512 @@
+<title>Alpha Trucking Social Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: highway-sign header, then a route: strategy → times → pillars → month grid → post-by-post run sheet → Nov/Dec → grows vs doesn't */
+:root{
+  --bg:#f3f5f2;
+  --surface:#ffffff;
+  --fg:#16201b;
+  --muted:#5b6961;
+  --line:#d9e0db;
+  --sign:#0b6b3a;        /* road-sign green */
+  --sign-fg:#ffffff;
+  --hivis:#f2b705;       /* hi-vis amber */
+  --hivis-ink:#3d2e00;
+  --high:#0b6b3a; --high-bg:#e1f1e7;
+  --med:#8a5a00;  --med-bg:#fbefd0;
+  --low:#a33a2b;  --low-bg:#f8e2de;
+  --chip:#eef2ef;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101512;--surface:#18201b;--fg:#e6ece8;--muted:#9aa8a0;--line:#2b3630;
+  --sign:#12824a;--sign-fg:#ffffff;--hivis:#f2b705;--hivis-ink:#2a2000;
+  --high:#6fd39b;--high-bg:#16321f;--med:#f0c25a;--med-bg:#352a0f;--low:#f08a7a;--low-bg:#3a1c18;--chip:#222b26;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101512;--surface:#18201b;--fg:#e6ece8;--muted:#9aa8a0;--line:#2b3630;
+  --sign:#12824a;--sign-fg:#ffffff;--hivis:#f2b705;--hivis-ink:#2a2000;
+  --high:#6fd39b;--high-bg:#16321f;--med:#f0c25a;--med-bg:#352a0f;--low:#f08a7a;--low-bg:#3a1c18;--chip:#222b26;color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:24px 64px}
+.wrap{max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.05}
+h2{font-size:clamp(28px,4vw,36px);font-weight:700;letter-spacing:.01em}
+h3{font-size:22px;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);max-width:68ch}
+section{display:flex;flex-direction:column;gap:18px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* Sign header */
+.sign{background:var(--sign);color:var(--sign-fg);border-radius:10px;padding:28px clamp(18px,4vw,40px);border:3px solid var(--sign);outline:2px solid var(--sign-fg);outline-offset:-9px;display:flex;flex-direction:column;gap:14px}
+.sign h1{font-size:clamp(40px,7vw,68px);font-weight:700;letter-spacing:.01em}
+.sign .route{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--display);font-size:20px;font-weight:600}
+.sign .route span::before{content:"→ ";color:var(--hivis)}
+.sign p{max-width:70ch;opacity:.92}
+.shield{display:inline-flex;align-self:flex-start;background:var(--hivis);color:var(--hivis-ink);font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+
+/* Generic grids */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{font-size:20px}
+.card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.pct{font-family:var(--display);font-size:34px;font-weight:700;color:var(--sign);line-height:1}
+
+/* Times table */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--chip)}
+tr:last-child td{border-bottom:0}
+td strong{font-weight:600}
+
+/* Pills */
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.g-High{background:var(--high-bg);color:var(--high)}
+.g-Medium{background:var(--med-bg);color:var(--med)}
+.g-Low{background:var(--low-bg);color:var(--low)}
+.plat{background:var(--chip);color:var(--fg);text-transform:none;letter-spacing:0}
+
+/* Month grid */
+.month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--muted);padding:4px 6px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-height:78px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0;font-size:12px}
+.day.empty{background:transparent;border-color:transparent}
+.day .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.day .ev{font-size:10.5px;font-family:var(--mono);color:var(--med);line-height:1.2}
+.day a{display:block;text-decoration:none;color:var(--fg);background:var(--chip);border-left:3px solid var(--muted);border-radius:3px;padding:2px 5px;font-size:11.5px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.day a.g-High{border-left-color:var(--high)}
+.day a.g-Medium{border-left-color:var(--med)}
+.day a.g-Low{border-left-color:var(--low)}
+.day a:hover,.day a:focus-visible{outline:2px solid var(--sign);outline-offset:1px}
+@media (max-width:640px){.day{min-height:54px}.day a{font-size:0;padding:0;height:6px;border-left-width:0}.day a.g-High{background:var(--high)}.day a.g-Medium{background:var(--med)}.day a.g-Low{background:var(--low)}.day .ev{display:none}}
+
+/* Filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filters .label{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:4px}
+.fbtn{font:inherit;font-size:13px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.fbtn[aria-pressed="true"]{background:var(--sign);border-color:var(--sign);color:var(--sign-fg)}
+.fbtn:focus-visible,.btn:focus-visible,input:focus-visible{outline:2px solid var(--hivis);outline-offset:2px}
+.progress{font-family:var(--mono);font-size:13px;color:var(--muted);margin-left:auto}
+
+/* Post run sheet */
+.posts{display:flex;flex-direction:column;gap:14px}
+.post{background:var(--surface);border:1px solid var(--line);border-radius:8px;display:grid;grid-template-columns:128px minmax(0,1fr);overflow:hidden;scroll-margin-top:16px}
+.post.done{opacity:.55}
+.post .when{background:var(--chip);padding:16px 14px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--line)}
+.post .d{font-family:var(--display);font-size:34px;font-weight:700;line-height:1}
+.post .dw{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--muted)}
+.post .t{font-family:var(--mono);font-size:12.5px;margin-top:6px}
+.post .body{padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.post .top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.post h3{font-size:23px}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:6px 14px;font-size:14px}
+.kv dt{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding-top:2px}
+.kv dd{margin:0;min-width:0}
+.caption{background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:10px 12px;white-space:pre-wrap;font-size:14px}
+.tags{font-family:var(--mono);font-size:12.5px;color:var(--sign);word-break:break-word}
+.why{font-size:13.5px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-size:13px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer}
+.btn:hover{border-color:var(--sign)}
+.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;cursor:pointer}
+.chk input{accent-color:var(--sign);width:16px;height:16px}
+@media (max-width:640px){.post{grid-template-columns:1fr}.post .when{flex-direction:row;align-items:baseline;gap:10px;border-right:0;border-bottom:1px solid var(--line);flex-wrap:wrap}.post .t{margin-top:0}.kv{grid-template-columns:1fr}.kv dt{padding-top:6px}}
+.empty-note{color:var(--muted);font-style:italic}
+
+/* Grows */
+.two{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.list li small{grid-column:1/-1;color:var(--muted);font-size:13px}
+.note{border-left:4px solid var(--hivis);background:var(--surface);padding:14px 16px;border-radius:0 8px 8px 0;font-size:14px;max-width:80ch}
+footer{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+
+<div class="wrap">
+
+<header class="sign">
+  <span class="shield">Social content plan · Oct – Dec 2026</span>
+  <h1>Alpha Trucking Social Calendar</h1>
+  <div class="route"><span>Sydney</span><span>Melbourne</span><span>Brisbane</span><span>Adelaide</span></div>
+  <p>A day-by-day posting plan for Facebook, Instagram, LinkedIn, Pinterest and Google Business Profile. Every post has what to shoot or design, when to post (AEST), a ready caption, an SEO description, keywords, hashtags, and a growth rating that says whether it is likely to grow the page or mainly serve another job.</p>
+</header>
+
+<!-- STRATEGY -->
+<section>
+  <span class="eyebrow">The plan in one screen</span>
+  <h2>What you post, and why</h2>
+  <p class="lede">Alpha Trucking sells to two very different audiences. Businesses that ship freight (warehouse managers, e-commerce owners, builders, importers) decide on LinkedIn and Google. The wider public, future drivers and local businesses discover you on Instagram and Facebook through short video. The plan runs both tracks side by side.</p>
+  <div class="grid">
+    <div class="card"><span class="pct mono">40%</span><h3>Show the work</h3><p>Real trucks, real loads, real depot. Time-lapses of loading, heavy haulage moves, 4am starts at North St Marys. This is your main growth engine.</p></div>
+    <div class="card"><span class="pct mono">25%</span><h3>Teach shippers</h3><p>Pallet packing, container sizes, parcel vs pallet vs FTL, dangerous goods basics, insurance. Saveable carousels that rank and get shared.</p></div>
+    <div class="card"><span class="pct mono">20%</span><h3>Sell the routes</h3><p>Sydney–Melbourne, Sydney–Adelaide, Melbourne–Brisbane, Gold Coast–Brisbane, plus 3PL, containers and DG. Each post links to a service page for SEO.</p></div>
+    <div class="card"><span class="pct mono">15%</span><h3>People &amp; trust</h3><p>Drivers, reviews, safety, wellbeing, milestones. This builds the credibility behind a "fastest growing" claim.</p></div>
+  </div>
+  <div class="grid">
+    <div class="card"><h3>Weekly rhythm</h3><ul><li>2 Reels (Instagram + Facebook)</li><li>1 carousel (Instagram, re-cut as a LinkedIn PDF)</li><li>2 LinkedIn posts (Tue and Thu mornings)</li><li>1 Google Business Profile post</li><li>3–5 Pinterest pins from the week's graphics</li><li>Stories on most weekdays (polls, depot snaps)</li></ul></div>
+    <div class="card"><h3>What to film every week</h3><ul><li>One loading or unloading time-lapse</li><li>One truck leaving or arriving on a route</li><li>One 20-second driver or staff clip</li><li>5–10 clean photos of trucks and freight</li></ul><p class="why">Batch this on one morning. It feeds the whole week.</p></div>
+    <div class="card"><h3>SEO rules for every post</h3><ul><li>Put the service + city keyword in the first line</li><li>Link to the matching service page, not the homepage</li><li>Name photo files with keywords (e.g. <span class="mono">heavy-haulage-sydney.jpg</span>)</li><li>Add a location tag (North St Marys / the route city)</li><li>Turn the best posts into a blog post each month</li></ul></div>
+  </div>
+</section>
+
+<!-- TIMES -->
+<section>
+  <span class="eyebrow">When to post · all times AEST/AEDT (Sydney)</span>
+  <h2>Best posting windows</h2>
+  <p class="lede">These windows are common starting points for Australian B2B and local-business audiences. After four weeks, check each platform's insights and move posts to the hours your own followers are online.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Platform</th><th>Best days</th><th>Best times</th><th>Who you reach</th><th>Main job</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LinkedIn</strong></td><td>Tue, Wed, Thu</td><td class="mono">7:30–9:00 am · 12:00–1:00 pm</td><td>Logistics managers, procurement, business owners</td><td>Leads, trust</td></tr>
+      <tr><td><strong>Instagram</strong></td><td>Wed, Fri, Sun</td><td class="mono">6:30–8:30 pm · 12:00 pm</td><td>Public, truck fans, future drivers, small business</td><td>Reach, followers</td></tr>
+      <tr><td><strong>Facebook</strong></td><td>Mon, Wed, Fri</td><td class="mono">12:00–1:00 pm · 7:00–8:00 pm</td><td>Local businesses, tradies, community groups</td><td>Reach, enquiries</td></tr>
+      <tr><td><strong>Pinterest</strong></td><td>Sat, Sun</td><td class="mono">8:00–10:00 pm</td><td>People searching "how to ship", "container sizes"</td><td>Long-term website traffic</td></tr>
+      <tr><td><strong>Google Business Profile</strong></td><td>Thu</td><td class="mono">Any time (weekly)</td><td>People searching "freight company near me"</td><td>Local SEO, calls</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- MONTH GRID -->
+<section>
+  <span class="eyebrow">October 2026 at a glance</span>
+  <h2>Month view</h2>
+  <p class="lede">Tap a post to jump to its full brief. The colour on each post shows its growth rating.</p>
+  <div class="filters" aria-hidden="true">
+    <span class="pill g-High">High growth</span><span class="pill g-Medium">Medium</span><span class="pill g-Low">Low, but needed</span>
+  </div>
+  <div class="month" id="month"></div>
+</section>
+
+<!-- RUN SHEET -->
+<section>
+  <span class="eyebrow">Post-by-post run sheet</span>
+  <h2>October 2026, every post</h2>
+  <div class="filters" id="platFilters"><span class="label">Platform</span></div>
+  <div class="filters" id="growFilters"><span class="label">Growth</span><span class="progress" id="progress"></span></div>
+  <div class="posts" id="posts"></div>
+</section>
+
+<!-- NOV / DEC -->
+<section>
+  <span class="eyebrow">Next two months</span>
+  <h2>November &amp; December: peak season</h2>
+  <p class="lede">Christmas is the busiest freight period of the year. November content should push early bookings; December content should give clear cut-off dates and thank customers.</p>
+  <div class="two">
+    <div class="card">
+      <h3>November 2026</h3>
+      <ul class="list">
+        <li><span><strong>Tue 3 · Melbourne Cup.</strong> Reel: "The race that stops a nation. Our freight doesn't." Truck on the Hume at race time.</span><span class="pill g-High">High</span></li>
+        <li><span><strong>All month · Movember.</strong> Team moustache progress photos each Friday; link to your fundraising page.</span><span class="pill g-Medium">Medium</span></li>
+        <li><span><strong>Wed 11 · Remembrance Day.</strong> Simple, respectful 11am post. No selling.</span><span class="pill g-Low">Low</span></li>
+        <li><span><strong>Mon 16 · Christmas cut-off dates.</strong> Carousel + GBP + pinned post with your cut-off per route.</span><span class="pill g-High">High</span></li>
+        <li><span><strong>Route spotlight: Sydney → Adelaide.</strong> LinkedIn document post with transit time and freight types.</span><span class="pill g-Medium">Medium</span></li>
+        <li><span><strong>Case study.</strong> "How we moved [client]'s stock before Christmas." Problem, what you did, result.</span><span class="pill g-High">High</span></li>
+        <li><span><strong>Fri 27 – Mon 30 · Black Friday / Cyber Monday.</strong> Aimed at online retailers: "Selling big this weekend? Your pallets need to move Monday."</span><span class="pill g-Medium">Medium</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>December 2026</h3>
+      <ul class="list">
+        <li><span><strong>1–12 · "12 Days of Freight Tips".</strong> One short tip a day in Stories and Reels. Builds a daily habit.</span><span class="pill g-High">High</span></li>
+        <li><span><strong>Weekly · Cut-off countdown.</strong> "7 days left to book interstate freight before Christmas."</span><span class="pill g-High">High</span></li>
+        <li><span><strong>Mid-month · Team Christmas thank-you.</strong> Drivers and warehouse staff photo, names with permission.</span><span class="pill g-Medium">Medium</span></li>
+        <li><span><strong>Holiday trading hours.</strong> Facebook, GBP and pinned post. Update GBP hours too.</span><span class="pill g-Low">Low</span></li>
+        <li><span><strong>~Dec 28 · 2026 year in review Reel.</strong> Kilometres, loads, new routes, new trucks (real numbers only).</span><span class="pill g-High">High</span></li>
+        <li><span><strong>Dec 30 · "Planning 2027 freight?"</strong> LinkedIn post inviting contract and quote conversations for the new year.</span><span class="pill g-Medium">Medium</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- GROWS OR NOT -->
+<section>
+  <span class="eyebrow">Content that grows, and content that doesn't</span>
+  <h2>Grows or not</h2>
+  <p class="lede">Ratings are based on how these formats usually perform for transport and trade businesses. Your own insights after the first month decide what stays.</p>
+  <div class="two">
+    <div class="card">
+      <h3>Grows the page</h3>
+      <ul class="list">
+        <li><span>Loading / unloading time-lapse Reels</span><span class="pill g-High">High</span><small>Satisfying to watch, gets rewatched, which pushes reach.</small></li>
+        <li><span>Heavy haulage and oversize moves</span><span class="pill g-High">High</span><small>Big machinery on a truck is the most shared trucking content.</small></li>
+        <li><span>Driver POV and "day in the life"</span><span class="pill g-High">High</span><small>Faces build followers and attract drivers you may hire.</small></li>
+        <li><span>How-to carousels (packing, sizes, which service)</span><span class="pill g-High">High</span><small>Get saved and shared, and rank in Instagram and Pinterest search.</small></li>
+        <li><span>Christmas cut-off and "book early" posts</span><span class="pill g-High">High</span><small>Direct buying intent. Brings quote requests.</small></li>
+        <li><span>Customer case studies with real results</span><span class="pill g-High">High</span><small>Best LinkedIn format for leads.</small></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Doesn't grow (use sparingly)</h3>
+      <ul class="list">
+        <li><span>"Happy Monday" quotes and stock photos</span><span class="pill g-Low">Low</span><small>No reason to stop scrolling. Skip entirely.</small></li>
+        <li><span>Plain "we offer freight services" ads as posts</span><span class="pill g-Low">Low</span><small>Reads as an ad, gets low reach. Put the offer inside a tip or a story.</small></li>
+        <li><span>Holiday greeting graphics with just the logo</span><span class="pill g-Low">Low</span><small>Fine once, but pair them with a real photo of your team.</small></li>
+        <li><span>Reposting the same image on every platform unchanged</span><span class="pill g-Low">Low</span><small>Resize and rewrite the first line for each platform.</small></li>
+        <li><span>Opening hours and closure notices</span><span class="pill g-Low">Low</span><small>Won't grow the page, but customers need them. Keep them on GBP and Stories.</small></li>
+        <li><span>Hashtag walls of 25+ tags</span><span class="pill g-Low">Low</span><small>Use 5–8 specific tags. Keywords in the caption now matter more.</small></li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><strong>Check the "cheapest" claim.</strong> The website calls Alpha Trucking the "cheapest freight company". Under Australian Consumer Law, a claim like that needs to be backed up. On social posts, safer wording is "competitive rates", "fair, upfront pricing" or "get a quote in minutes".</div>
+</section>
+
+<!-- KPIs -->
+<section>
+  <span class="eyebrow">Measure monthly</span>
+  <h2>How to tell if it's working</h2>
+  <div class="grid">
+    <div class="card"><h3>Reach</h3><p>Reel views, accounts reached, new followers per week. Aim for steady week-on-week growth on Instagram.</p></div>
+    <div class="card"><h3>Engagement</h3><p>Saves and shares count more than likes. A post with many saves is a format to repeat.</p></div>
+    <div class="card"><h3>Leads</h3><p>Website clicks, WhatsApp messages, calls to 1300 025 742, quote form fills. Ask every new customer "where did you hear about us?"</p></div>
+    <div class="card"><h3>SEO</h3><p>Google Business Profile calls and direction requests, and Search Console clicks on route and service pages.</p></div>
+  </div>
+  <p class="lede">At the end of each month, find your top 3 posts by saves + shares and make three more like them. Drop the bottom 3 formats.</p>
+</section>
+
+<footer>Plan built from alphatrucking.com.au (services, routes and contact details). Swap in your real transit times, prices, photos and numbers before posting; items in [square brackets] are placeholders.</footer>
+</div>
+
+<script>
+const BASE = "#AlphaTrucking #FreightAustralia";
+const posts = [
+ {id:"o1",d:1,dow:"Thu",time:"8:00 am",plats:["LinkedIn","Facebook"],fmt:"Carousel (6 slides)",grow:"Medium",goal:"Trust",
+  title:"Safe Work Month: our pre-trip checklist",
+  make:"Photograph a driver doing a real pre-trip check (tyres, lights, load restraints, logbook). Turn it into a 6-slide carousel, one check per slide, with a closing slide 'Safety is part of on-time delivery'.",
+  caption:"October is National Safe Work Month. 🦺\n\nBefore every Alpha Trucking truck leaves North St Marys, our drivers run through this checklist. Swipe to see what we check and why it keeps your freight on time.\n\nSafe drivers. Safe freight. Every run.",
+  seo:"Alpha Trucking marks Safe Work Month with the pre-trip safety checklist our drivers use before every interstate freight run from Sydney.",
+  kw:"safe freight company Sydney, truck safety checklist, interstate trucking NSW",
+  tags:BASE+" #SafeWorkMonth #TruckSafety #SydneyFreight #Logistics",
+  why:"Safety posts do well on LinkedIn with logistics managers. On Instagram they are average unless you show a real driver."},
+ {id:"o2",d:2,dow:"Fri",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (15–20 s)",grow:"High",goal:"Reach",
+  title:"Loading a full truck in 15 seconds",
+  make:"Set a phone on a tripod in the depot and time-lapse a full load (30–45 minutes of footage sped up). Add a trending audio track and a text hook in the first second.",
+  caption:"45 minutes of loading. 15 seconds of your time. ⏱️🚛\n\nEvery pallet strapped, checked and ready for the road to Melbourne.\n\nNeed freight moved interstate? Link in bio or call 1300 025 742.",
+  seo:"Time-lapse of Alpha Trucking loading a full truck of pallet freight at our Western Sydney depot for interstate delivery to Melbourne.",
+  kw:"pallet freight Sydney, interstate truck loading, freight company Western Sydney",
+  tags:BASE+" #TruckTok #Timelapse #PalletFreight #AussieTruckies",
+  why:"Time-lapses get watched more than once, and rewatches are the strongest signal for Reels reach."},
+ {id:"o3",d:5,dow:"Mon",time:"9:00 am",plats:["Facebook","Google Business Profile"],fmt:"Single image + Story",grow:"Low",goal:"Service",
+  title:"Public holiday operating hours",
+  make:"A clean photo of a truck with your hours for the Labour Day (NSW, SA) / King's Birthday (QLD) long weekend overlaid. Post it to Stories too.",
+  caption:"Long weekend update 🗓️\n\nMonday 5 October is Labour Day in NSW and SA and the King's Birthday in QLD. Here's how Alpha Trucking is running: [your hours].\n\nNeed something moved urgently? WhatsApp us or call 1300 025 742.",
+  seo:"Alpha Trucking operating hours for the October 2026 Labour Day and King's Birthday long weekend across NSW, SA and QLD.",
+  kw:"freight public holiday hours, Labour Day freight NSW",
+  tags:BASE+" #LabourDay #LongWeekend",
+  why:"Will not grow followers. Needed so customers are not surprised. Keep it short."},
+ {id:"o4",d:6,dow:"Tue",time:"8:00 am",plats:["LinkedIn"],fmt:"PDF document post (5 pages)",grow:"High",goal:"Leads",
+  title:"Route spotlight: Sydney → Melbourne",
+  make:"A 5-page PDF: the route map, typical transit time [your time], what you carry (general, pallets, containers), pick-up and delivery areas, and a 'get a quote' page. Write a matching blog post on your site.",
+  caption:"Sydney to Melbourne is one of Australia's busiest freight corridors. Here's how Alpha Trucking runs it:\n\n→ Transit time: [x] days\n→ General freight, pallets and containers\n→ Pick-up across Sydney, delivery across Melbourne metro\n\nSwipe through, and message us for a quote on your next load.",
+  seo:"Sydney to Melbourne freight with Alpha Trucking: transit times, freight types and pick-up areas for interstate road transport.",
+  kw:"Sydney to Melbourne freight, interstate freight Sydney Melbourne, road freight Melbourne",
+  tags:BASE+" #SydneyToMelbourne #InterstateFreight #Logistics #SupplyChain",
+  why:"Document posts get high dwell time on LinkedIn, and this is exactly what a buyer is searching for."},
+ {id:"o5",d:7,dow:"Wed",time:"7:00 pm",plats:["Instagram","Pinterest"],fmt:"Carousel (7 slides)",grow:"High",goal:"Saves",
+  title:"5 ways to pack a pallet so it arrives in one piece",
+  make:"Photograph a good pallet vs a bad one. Slides: heavy on the bottom, no overhang, stretch-wrap to the base, corner boards, clear labels. End slide: 'Save this for your next shipment'.",
+  caption:"Most freight damage starts before the truck moves. 📦\n\nSave these 5 pallet packing tips for your next shipment:\n1. Heaviest boxes on the bottom\n2. No overhang past the pallet edge\n3. Wrap right down to the base\n4. Use corner boards\n5. Label two sides\n\nShipping pallets interstate? We can help.",
+  seo:"How to pack a pallet for freight: 5 tips from Alpha Trucking to stop damage on interstate pallet delivery in Australia.",
+  kw:"how to pack a pallet, pallet delivery Sydney, pallet freight tips",
+  tags:BASE+" #PalletDelivery #ShippingTips #SmallBusinessAustralia #Ecommerce",
+  why:"Useful checklists get saved and shared, and they keep working in search for months."},
+ {id:"o6",d:8,dow:"Thu",time:"10:00 am",plats:["Google Business Profile","Facebook"],fmt:"Photo post",grow:"Medium",goal:"SEO",
+  title:"Service spotlight: 3PL warehousing in Western Sydney",
+  make:"Wide photo of racking and stock in your warehouse. Short, keyword-rich text and a 'Learn more' button to the 3PL page.",
+  caption:"Need somewhere to store stock between shipments? 🏭\n\nAlpha Trucking offers 3PL warehousing in North St Marys, with storage, pick and pack, and delivery all under one roof.\n\nAsk us about space: 1300 025 742.",
+  seo:"3PL warehousing in North St Marys, Western Sydney: storage, pick and pack and freight delivery from Alpha Trucking.",
+  kw:"3PL warehousing Western Sydney, warehouse storage North St Marys, 3PL Sydney",
+  tags:BASE+" #3PL #Warehousing #WesternSydney",
+  why:"Reach is modest, but GBP posts with local keywords help you show up in 'near me' searches."},
+ {id:"o7",d:9,dow:"Fri",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (20–30 s)",grow:"High",goal:"Reach",
+  title:"Meet the driver",
+  make:"Film one driver (with consent) answering 3 quick questions: How long have you driven? Favourite route? Best road food stop? Use captions on screen.",
+  caption:"Meet [Name], one of the drivers keeping Sydney and Melbourne moving. 👋\n\nFavourite route: [route]\nBest pie stop: [town]\n\nDrop a 🚛 to say g'day.",
+  seo:"Meet the Alpha Trucking drivers who move interstate freight between Sydney, Melbourne, Brisbane and Adelaide every week.",
+  kw:"truck driver Australia, interstate truck driver Sydney",
+  tags:BASE+" #MeetTheTeam #AussieTruckies #TruckDriver #TruckLife",
+  why:"Faces outperform trucks alone. It also helps you recruit drivers."},
+ {id:"o8",d:10,dow:"Sat",time:"10:00 am",plats:["LinkedIn","Facebook","Instagram"],fmt:"Single image",grow:"Medium",goal:"Trust",
+  title:"World Mental Health Day: looking after our drivers",
+  make:"A real team photo. Share what you do for driver wellbeing (rest breaks, check-ins) and point to resources like Healthy Heads in Trucks & Sheds.",
+  caption:"Long hours and long roads can be tough. 💚\n\nOn World Mental Health Day, a reminder to every driver and warehouse worker: check in with your mates. Here's what we do at Alpha Trucking: [your practices].",
+  seo:"Alpha Trucking supports driver mental health on World Mental Health Day with wellbeing check-ins for the trucking and logistics industry.",
+  kw:"truck driver mental health, logistics wellbeing Australia",
+  tags:BASE+" #WorldMentalHealthDay #HealthyHeads #TruckDrivers",
+  why:"Good for employer brand. Keep it sincere; do not add a sales message."},
+ {id:"o9",d:13,dow:"Tue",time:"8:00 am",plats:["LinkedIn"],fmt:"Text + image",grow:"Medium",goal:"Leads",
+  title:"Dangerous goods transport, explained simply",
+  make:"Photo of a placarded DG load (placards visible, no customer names). Short post covering the classes you carry, driver licensing and compliance with the Australian Dangerous Goods Code.",
+  caption:"Moving dangerous goods isn't like moving general freight.\n\nAt Alpha Trucking, DG loads get:\n→ Licensed, trained drivers\n→ Correct placarding and paperwork\n→ Compliance with the Australian Dangerous Goods Code\n\nNeed DG freight moved in NSW, VIC, QLD or SA? Let's talk.",
+  seo:"Dangerous goods transport in Sydney and interstate by Alpha Trucking: licensed drivers and compliance with the Australian Dangerous Goods Code.",
+  kw:"dangerous goods transport Sydney, DG freight NSW, dangerous goods trucking Australia",
+  tags:BASE+" #DangerousGoods #DGTransport #Compliance #Logistics",
+  why:"Small audience, but high-value buyers. Brings the right enquiries more than big reach."},
+ {id:"o10",d:14,dow:"Wed",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (20–30 s)",grow:"High",goal:"Reach",
+  title:"Heavy haulage: oversize load on the move",
+  make:"Film an oversize or heavy haulage job: machine being loaded, chained, and the truck pulling out. Hook text: 'How do you move a [x]-tonne [machine]?'",
+  caption:"How do you move a [x]-tonne [machine] across the state? Very carefully. 😅🏗️\n\nHeavy haulage and oversize loads by Alpha Trucking, planned, permitted and delivered.\n\nGot something big to move? DM us.",
+  seo:"Heavy haulage and oversize load transport in NSW and interstate by Alpha Trucking: loading, securing and delivering heavy machinery.",
+  kw:"heavy haulage Sydney, oversize load transport NSW, machinery transport",
+  tags:BASE+" #HeavyHaulage #OversizeLoad #MachineryTransport #Trucking",
+  why:"Oversize loads are the most shared trucking content. Likely your best Reel of the month."},
+ {id:"o11",d:15,dow:"Thu",time:"8:00 pm",plats:["Pinterest","Instagram"],fmt:"Infographic (tall pin 1000×1500)",grow:"Medium",goal:"SEO",
+  title:"Container sizes explained: 20ft vs 40ft vs 40ft High Cube",
+  make:"One tall infographic with internal dimensions: 20ft (about 5.9 × 2.35 × 2.39 m), 40ft (about 12.0 × 2.35 × 2.39 m), 40ft HC (about 12.0 × 2.35 × 2.69 m) and roughly how many pallets fit. Link the pin to your container transport page.",
+  caption:"Which shipping container do you need? 📐\n\n20ft, 40ft or 40ft High Cube: here are the internal sizes and how many pallets fit in each. Save it for later.\n\nWe move containers of all sizes around Sydney and interstate.",
+  seo:"Shipping container sizes explained: 20ft, 40ft and 40ft High Cube dimensions and pallet capacity, from Alpha Trucking container transport.",
+  kw:"container sizes 20ft 40ft, container transport Sydney, shipping container dimensions",
+  tags:BASE+" #ContainerTransport #ShippingContainer #Logistics",
+  why:"Slow start, but Pinterest pins keep sending search traffic for months. Low effort to reuse."},
+ {id:"o12",d:16,dow:"Fri",time:"12:30 pm",plats:["Facebook","Instagram","LinkedIn"],fmt:"Review graphic",grow:"Medium",goal:"Trust",
+  title:"Customer review of the week",
+  make:"Screenshot a real 5-star Google review (first name only) on a branded background with a truck photo behind it.",
+  caption:"This one made our week. ⭐⭐⭐⭐⭐\n\n\"[review text]\" – [first name]\n\nThanks for trusting us with your freight. Happy customer? Leave us a Google review, link in bio.",
+  seo:"Customer review for Alpha Trucking: reliable, on-time interstate freight delivery across NSW, VIC, QLD and SA.",
+  kw:"reliable freight company Australia, Alpha Trucking reviews",
+  tags:BASE+" #CustomerReview #HappyCustomer #Freight",
+  why:"Average reach, but reviews build trust and asking for more reviews boosts local SEO."},
+ {id:"o13",d:19,dow:"Mon",time:"12:00 pm",plats:["LinkedIn","Facebook","Google Business Profile"],fmt:"Single image + pinned post",grow:"High",goal:"Leads",
+  title:"Peak season is coming: book Christmas freight early",
+  make:"Truck photo with bold text: 'Christmas freight? Book before [date].' Pin it to the top of Facebook for the rest of October.",
+  caption:"Christmas is the busiest time of year on Australian roads. 🎄🚛\n\nIf you need stock moved interstate before the holidays, book now to lock in your pick-up dates. Sydney, Melbourne, Brisbane and Adelaide.\n\nGet a quote: 1300 025 742 or info@alphatrucking.com.au",
+  seo:"Book Christmas freight early with Alpha Trucking: interstate delivery between Sydney, Melbourne, Brisbane and Adelaide before the holiday rush.",
+  kw:"Christmas freight Australia, book interstate freight, peak season freight Sydney",
+  tags:BASE+" #ChristmasFreight #PeakSeason #SmallBusinessAustralia #Logistics",
+  why:"Clear buying intent at the right moment. Expect quote requests, not just likes."},
+ {id:"o14",d:21,dow:"Wed",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (trend format)",grow:"High",goal:"Reach",
+  title:"Things people ask truck drivers",
+  make:"Driver on camera reacting to on-screen questions: 'Do you sleep in the truck?', 'How many gears?', 'Is it boring?' Quick cuts, funny honest answers.",
+  caption:"We asked our drivers the questions everyone wants to ask. 😂\n\nWhich one surprised you? Comment below 👇",
+  seo:"Alpha Trucking drivers answer the most common questions about life as an interstate truck driver in Australia.",
+  kw:"truck driver life Australia, interstate trucking",
+  tags:BASE+" #TruckLife #AussieTruckies #TruckDriver #Trucking",
+  why:"Question-and-answer Reels get comments, which pushes reach to non-followers."},
+ {id:"o15",d:22,dow:"Thu",time:"10:00 am",plats:["Google Business Profile","Facebook","LinkedIn"],fmt:"Photo post",grow:"Medium",goal:"SEO",
+  title:"Route spotlight: Melbourne → Brisbane and Gold Coast → Brisbane",
+  make:"Truck photo on the highway plus a small route map. Mention both runs with transit times and freight types.",
+  caption:"Moving freight up the east coast? 🗺️\n\nAlpha Trucking runs Melbourne → Brisbane and Gold Coast → Brisbane, with general freight, pallets and containers.\n\nAsk for your quote: 1300 025 742",
+  seo:"Melbourne to Brisbane and Gold Coast to Brisbane freight with Alpha Trucking: road transport for general freight, pallets and containers.",
+  kw:"Melbourne to Brisbane freight, Gold Coast to Brisbane freight, Brisbane road freight",
+  tags:BASE+" #BrisbaneFreight #MelbourneFreight #GoldCoast #InterstateFreight",
+  why:"Route posts rank for high-intent searches. Modest social reach, strong SEO value."},
+ {id:"o16",d:23,dow:"Fri",time:"12:30 pm",plats:["Instagram","LinkedIn","Pinterest"],fmt:"Carousel (6 slides)",grow:"High",goal:"Saves",
+  title:"Parcel, pallet or full truckload: which do you need?",
+  make:"Simple comparison slides: size, weight range, typical use, and a 'still unsure? ask us' final slide. Re-upload as a LinkedIn PDF.",
+  caption:"Parcel, pallet or full truckload? 🤔\n\nPicking the wrong one costs you money. Swipe for a quick guide to choosing the right freight service for your shipment.\n\nStill not sure? Send us your dimensions and we'll tell you.",
+  seo:"Parcel vs pallet vs full truckload freight: a quick guide from Alpha Trucking to choosing the right delivery service in Australia.",
+  kw:"parcel vs pallet delivery, full truckload freight Australia, pallet delivery Sydney",
+  tags:BASE+" #PalletDelivery #ParcelDelivery #ShippingTips #Ecommerce",
+  why:"Answers a real buyer question, gets saved, and leads straight into a quote."},
+ {id:"o17",d:27,dow:"Tue",time:"8:00 am",plats:["LinkedIn"],fmt:"Text + photo",grow:"Medium",goal:"Trust",
+  title:"Our growth story (with real numbers)",
+  make:"Founder or manager photo next to the fleet. Share real milestones: trucks added, routes opened, staff hired since starting.",
+  caption:"When we started Alpha Trucking, we had [x] trucks and one route.\n\nToday: [x] trucks, [x] interstate routes, [x] team members, across NSW, VIC, QLD and SA.\n\nThank you to every customer who took a chance on us. Next goal: [goal].",
+  seo:"The Alpha Trucking growth story: from one route to interstate freight across NSW, Victoria, Queensland and South Australia.",
+  kw:"fastest growing freight company Australia, Sydney trucking company",
+  tags:BASE+" #SmallBusiness #GrowthStory #Logistics #Trucking",
+  why:"Founder posts do well on LinkedIn. Real numbers make it believable."},
+ {id:"o18",d:28,dow:"Wed",time:"7:00 pm",plats:["Instagram","Facebook"],fmt:"Reel (30 s)",grow:"High",goal:"Reach",
+  title:"4am at the depot: a day in the life",
+  make:"Short clips from the first truck out: lights on, coffee, pre-trip check, gate opening, truck on the M4 at sunrise. Voice-over or on-screen text.",
+  caption:"While Sydney sleeps, we're already on the road. 🌅\n\nA day in the life at Alpha Trucking, from the 4am start to the first delivery.",
+  seo:"A day in the life at Alpha Trucking: early starts at our North St Marys depot and interstate freight runs from Western Sydney.",
+  kw:"trucking company Western Sydney, day in the life truck driver",
+  tags:BASE+" #DayInTheLife #TruckLife #WesternSydney #AussieTruckies",
+  why:"Sunrise and behind-the-scenes clips are easy to watch and build a following over time."},
+ {id:"o19",d:29,dow:"Thu",time:"8:00 am",plats:["LinkedIn","Facebook","Google Business Profile"],fmt:"Carousel / single image",grow:"Medium",goal:"Leads",
+  title:"Is your freight insured? What transit cover means",
+  make:"3–4 slides in plain words: what transit insurance covers, what it doesn't, and how to add it with Alpha Trucking. Link to your Insurance page.",
+  caption:"\"Is my freight insured?\" is one of the questions we hear most.\n\nHere's what transit insurance covers, what it doesn't, and how to add it when you book with Alpha Trucking. Details on our Insurance page.",
+  seo:"Freight insurance explained: what transit cover includes and how to insure your shipment with Alpha Trucking in Australia.",
+  kw:"freight insurance Australia, transit insurance for freight, insured freight delivery",
+  tags:BASE+" #FreightInsurance #ShippingTips #Logistics",
+  why:"Answers a question buyers have before booking. Moderate reach, good for trust and conversions."},
+ {id:"o20",d:31,dow:"Sat",time:"6:30 pm",plats:["Instagram","Facebook"],fmt:"Meme / short Reel",grow:"Medium",goal:"Engagement",
+  title:"Halloween: the scariest things in freight",
+  make:"Spooky-style meme or 10-second Reel: 'Scariest things in freight: 👻 no pallet label, 🎃 \"it's only light\" (it's 800 kg), 💀 \"can you pick up in 10 minutes?\"'",
+  caption:"The scariest things in freight 👻🎃\n\n1. A pallet with no label\n2. \"It's pretty light\" (it's 800 kg)\n3. \"Can you pick up in 10 minutes?\"\n\nWhat's yours? Tag someone who's been there.",
+  seo:"Halloween freight humour from Alpha Trucking: the scariest things every logistics team and truck driver has faced.",
+  kw:"logistics humour, freight memes Australia",
+  tags:BASE+" #Halloween #LogisticsLife #TruckerHumor",
+  why:"Relatable humour gets tags and shares. Won't bring leads directly, but grows the audience."}
+];
+
+const PLATS=["All","LinkedIn","Instagram","Facebook","Pinterest","Google Business Profile"];
+const GROWS=["All","High","Medium","Low"];
+const EVENTS={1:"Safe Work Month",5:"Labour Day / King's Bday",10:"Mental Health Day",31:"Halloween"};
+let fPlat="All",fGrow="All";
+let done={};
+try{done=JSON.parse(localStorage.getItem("at-done")||"{}")}catch(e){done={}}
+const save=()=>{try{localStorage.setItem("at-done",JSON.stringify(done))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+
+function month(){
+  const m=document.getElementById("month");
+  let h=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div class="dow">${d}</div>`).join("");
+  for(let i=0;i<3;i++)h+=`<div class="day empty"></div>`; // Oct 1 2026 is a Thursday
+  for(let d=1;d<=31;d++){
+    const ps=posts.filter(p=>p.d===d);
+    h+=`<div class="day"><span class="n">${d}</span>${EVENTS[d]?`<span class="ev">${EVENTS[d]}</span>`:""}${ps.map(p=>`<a href="#${p.id}" class="g-${p.grow}" title="${esc(p.title)}">${esc(p.title)}</a>`).join("")}</div>`;
+  }
+  const trail=(7-((3+31)%7))%7;
+  for(let i=0;i<trail;i++)h+=`<div class="day empty"></div>`;
+  m.innerHTML=h;
+}
+function filters(){
+  const mk=(el,list,get,set)=>{
+    list.forEach(v=>{const b=document.createElement("button");b.className="fbtn";b.type="button";b.textContent=v;b.setAttribute("aria-pressed",v===get());
+      b.onclick=()=>{set(v);el.querySelectorAll(".fbtn").forEach(x=>x.setAttribute("aria-pressed",x.textContent===v));render()};
+      el.insertBefore(b,el.querySelector(".progress"));});
+  };
+  mk(document.getElementById("platFilters"),PLATS,()=>fPlat,v=>fPlat=v);
+  mk(document.getElementById("growFilters"),GROWS,()=>fGrow,v=>fGrow=v);
+}
+function render(){
+  const list=posts.filter(p=>(fPlat==="All"||p.plats.includes(fPlat))&&(fGrow==="All"||p.grow===fGrow));
+  const el=document.getElementById("posts");
+  el.innerHTML=list.length?list.map(p=>`
+  <article class="post${done[p.id]?" done":""}" id="${p.id}">
+    <div class="when"><span class="d">${p.d}</span><span class="dw">${p.dow} · Oct</span><span class="t">${p.time}</span></div>
+    <div class="body">
+      <div class="top"><span class="pill g-${p.grow}">${p.grow} growth</span>${p.plats.map(x=>`<span class="pill plat">${x}</span>`).join("")}<span class="pill plat">${esc(p.fmt)}</span></div>
+      <h3>${esc(p.title)}</h3>
+      <dl class="kv">
+        <dt>What to make</dt><dd>${esc(p.make)}</dd>
+        <dt>Caption</dt><dd><div class="caption" id="cap-${p.id}">${esc(p.caption)}</div></dd>
+        <dt>SEO description</dt><dd>${esc(p.seo)}</dd>
+        <dt>Keywords</dt><dd>${esc(p.kw)}</dd>
+        <dt>Hashtags</dt><dd class="tags">${esc(p.tags)}</dd>
+        <dt>Main goal</dt><dd>${esc(p.goal)}</dd>
+        <dt>Grows or not</dt><dd class="why"><strong>${p.grow}.</strong> ${esc(p.why)}</dd>
+      </dl>
+      <div class="actions">
+        <button class="btn" type="button" data-copy="${p.id}">Copy caption + hashtags</button>
+        <label class="chk"><input type="checkbox" id="done-${p.id}" data-done="${p.id}" ${done[p.id]?"checked":""}> Posted</label>
+      </div>
+    </div>
+  </article>`).join(""):`<p class="empty-note">No posts match these filters. Choose "All" to see the full month.</p>`;
+  const n=posts.filter(p=>done[p.id]).length;
+  document.getElementById("progress").textContent=`${n} of ${posts.length} posted`;
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-copy]");if(!b)return;
+  const p=posts.find(x=>x.id===b.dataset.copy);const text=p.caption+"\n\n"+p.tags;
+  const ok=()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy caption + hashtags",1500)};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("cap-"+p.id));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Selected, press Ctrl+C"};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok,fallback)}else fallback();
+});
+document.addEventListener("change",e=>{
+  const id=e.target.dataset&&e.target.dataset.done;if(!id)return;
+  if(e.target.checked)done[id]=1;else delete done[id];save();render();
+});
+month();filters();render();
+</script>
