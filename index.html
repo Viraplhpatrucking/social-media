@@ -36,6 +36,9 @@
   --low:#ff453a;--low-ink:#ff6961;--low-tint:rgba(255,69,58,.16);--indigo:#5e5ce6;--teal:#40c8e0;color-scheme:dark}
 
 /* Chart tokens: categorical slots 1–5 of the validated palette, fixed per platform */
+:root{--fill:rgba(118,118,128,.12)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fill:rgba(118,118,128,.24)}}
+:root[data-theme="dark"]{--fill:rgba(118,118,128,.24)}
 :root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--grid:#e8e8ed;--axis:#c7c7cc;--ink-2:#52514e;--ink-3:#86868b}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--grid:#2c2c2e;--axis:#48484a;--ink-2:#c3c2b7;--ink-3:#8e8e93}}
 :root[data-theme="dark"]{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--grid:#2c2c2e;--axis:#48484a;--ink-2:#c3c2b7;--ink-3:#8e8e93}
@@ -57,7 +60,12 @@ button{font:inherit;color:inherit}
 .links a{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap}
 .links a:hover{color:var(--fg)}
 .nav .cta{background:var(--accent);color:var(--accent-fg);border:0;border-radius:999px;padding:5px 13px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
-@media (max-width:640px){.links{display:none}.nav-in{justify-content:space-between}}
+.themeBtn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.themeBtn:hover{background:var(--surface-2)}
+.themeBtn svg{width:16px;height:16px;flex:none}
+html.theming,html.theming *{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease!important}
+@media (prefers-reduced-motion:reduce){html.theming,html.theming *{transition:none!important}}
+@media (max-width:640px){.links{display:none}.nav-in{justify-content:space-between;gap:10px}.brand{margin-right:auto}.themeBtn span{display:none}.themeBtn{padding:0 7px}}
 
 main{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:0 96px;display:flex;flex-direction:column;gap:120px}
 section{display:flex;flex-direction:column;gap:28px;scroll-margin-top:72px}
@@ -69,7 +77,7 @@ section{display:flex;flex-direction:column;gap:28px;scroll-margin-top:72px}
 /* Hero */
 .hero{padding-top:88px;align-items:center;text-align:center;gap:22px}
 .hero h1{font-size:clamp(48px,9vw,96px);letter-spacing:-.045em;line-height:1.02}
-.hero h1 span{background:linear-gradient(90deg,var(--accent),var(--indigo) 60%,var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1 span{background:linear-gradient(90deg,var(--accent),var(--indigo),var(--teal),var(--accent));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero .sub{max-width:40ch;margin-inline:auto}
 .upnext{margin-top:28px;width:100%;max-width:760px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:28px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;text-align:left;align-items:center}
 .dateTile{width:104px;border-radius:22px;overflow:hidden;background:var(--surface-2);text-align:center}
@@ -138,7 +146,7 @@ section{display:flex;flex-direction:column;gap:28px;scroll-margin-top:72px}
 
 /* Segmented control */
 .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-.seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:2px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg{display:inline-flex;background:var(--fill);border-radius:10px;padding:3px;gap:2px;max-width:100%;overflow-x:auto;scrollbar-width:none}
 .seg button{border:0;background:transparent;padding:6px 14px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--fg)}
 .seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 :root[data-theme="dark"] .seg button[aria-pressed="true"]{background:#636366}
@@ -333,6 +341,76 @@ details.dt .etable{margin-top:12px;background:transparent}
 .notesOut{background:var(--accent-tint);border-radius:var(--r-md);padding:16px 18px;font-size:15px;white-space:pre-wrap}
 .notesOut b{display:block;font-size:13px;color:var(--accent);margin-bottom:4px}
 
+/* Motion. Everything is visible at rest; animations only play with motion allowed */
+.burst{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:60}
+@media (prefers-reduced-motion:no-preference){
+  :root{--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.3,1.35,.5,1)}
+  @keyframes rise{from{opacity:0;translate:0 22px}to{opacity:1;translate:0 0}}
+  @keyframes shine{from{background-position:0% 50%}to{background-position:100% 50%}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;scale:.94}to{opacity:1;scale:1}}
+  @keyframes sheetUp{from{translate:0 40%}to{translate:0 0}}
+  @keyframes cellIn{from{opacity:0;scale:.92}to{opacity:1;scale:1}}
+  @keyframes rowIn{from{opacity:0;translate:0 10px}to{opacity:1;translate:0 0}}
+  @keyframes grow{from{scale:0 1}to{scale:1 1}}
+  @keyframes barUp{from{scale:1 0}to{scale:1 1}}
+  @keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+  @keyframes dotPop{0%{scale:.4}60%{scale:1.25}100%{scale:1}}
+  @keyframes ring{0%{box-shadow:0 0 0 0 var(--accent-tint)}100%{box-shadow:0 0 0 10px transparent}}
+  @keyframes wiggle{0%,100%{rotate:0deg}20%{rotate:14deg}40%{rotate:-12deg}60%{rotate:8deg}80%{rotate:-4deg}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  @keyframes toastIn{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+  @keyframes fly{to{translate:var(--dx) var(--dy);scale:.2;opacity:0}}
+
+  /* Hero load sequence */
+  .hero>*{animation:rise .9s var(--ease) both}
+  .hero>*:nth-child(2){animation-delay:.08s}
+  .hero>*:nth-child(3){animation-delay:.18s}
+  .hero>*:nth-child(4){animation-delay:.3s}
+  .hero h1 span{animation:shine 9s ease-in-out infinite alternate}
+  .bell svg{animation:wiggle 1s ease 1.4s both;transform-origin:50% 10%}
+
+  /* Scroll reveal, driven by scroll position where supported */
+  @supports (animation-timeline:view()){
+    .head,.tile,.chartTile,.kpi,.calcard,.tracks,.group,.entry,.note,details.dt,.toolbar,.chips{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+    .mixbar span{transform-origin:left;animation:grow linear both;animation-timeline:view();animation-range:entry 30% cover 45%}
+    .track .win{transform-origin:left;animation:grow linear both;animation-timeline:view();animation-range:entry 40% cover 50%}
+  }
+
+  /* Calendar and list when the month or filters change */
+  .cal.anim .cell{animation:cellIn .45s var(--ease) both;animation-delay:calc(var(--i,0)*12ms)}
+  .group.anim .rowbtn{animation:rowIn .45s var(--ease) both;animation-delay:calc(var(--i,0)*35ms)}
+  .pcell .pn{display:inline-block;animation:dotPop .5s var(--spring) both}
+
+  /* Charts */
+  .chart .ln{stroke-dasharray:1;animation:draw 1.2s var(--ease) both}
+  .chart .pt{animation:fade .4s ease both;animation-delay:.9s}
+  .chart .bar{transform-box:fill-box;transform-origin:50% 100%;animation:barUp .8s var(--spring) both;animation-delay:calc(var(--i,0)*90ms)}
+  .chart .val,.chart .lbl{animation:fade .5s ease both;animation-delay:1s}
+
+  /* Sheet */
+  dialog[open]{animation:pop .38s var(--spring)}
+  dialog[open]::backdrop{animation:fade .3s ease}
+  @media (max-width:640px){dialog[open]{animation:sheetUp .42s var(--ease)}}
+  .st.cur .stdot{animation:dotPop .45s var(--spring),ring 1s ease .2s}
+  .st.past .stdot{animation:dotPop .4s var(--spring)}
+  .schrow{animation:rowIn .4s var(--ease) both}
+  .schrow:nth-child(3){animation-delay:.05s}.schrow:nth-child(4){animation-delay:.1s}.schrow:nth-child(5){animation-delay:.15s}
+
+  /* Feedback */
+  .toast:not([hidden]){animation:toastIn .35s var(--spring)}
+  .alert b::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--med);margin-right:8px;animation:pulse 1.6s ease infinite}
+  .btn,.cta,.seg button,.chips button,.st,.rowbtn,.themeBtn,.cell.has,.link{transition:transform .18s var(--spring),background-color .2s,box-shadow .2s}
+  .btn:active,.cta:active,.seg button:active,.chips button:active,.st:active,.themeBtn:active,.cell.has:active{transform:scale(.96)}
+  .rowbtn:active{transform:scale(.99)}
+  .btn:hover{box-shadow:0 4px 14px var(--accent-tint)}
+  .themeBtn svg{transition:rotate .5s var(--spring)}
+  .themeBtn:hover svg{rotate:25deg}
+  .kpi,.chartTile,.upnext{transition:transform .25s var(--ease),box-shadow .25s}
+  .kpi:hover,.chartTile:hover,.upnext:hover{transform:translateY(-3px);box-shadow:0 2px 6px rgba(0,0,0,.05),0 18px 44px rgba(0,0,0,.1)}
+  .burst{animation:fly .8s var(--ease) forwards}
+}
+
 footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24px 48px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;z-index:50}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}.tile,.rowbtn,.cell{transition:background .15s,transform .2s}.tile:hover{transform:translateY(-2px)}}
@@ -344,6 +422,7 @@ footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24p
     <div class="links">
       <a href="#strategy">Strategy</a><a href="#times">Posting times</a><a href="#calendar">Calendar</a><a href="#analytics">Analytics</a><a href="#grows">Grows or not</a><a href="#measure">Measure</a>
     </div>
+    <button class="themeBtn" type="button" id="themeBtn" aria-label="Switch to light mode"></button>
     <button class="cta" type="button" id="navNext">Up next</button>
   </div>
 </nav>
@@ -462,6 +541,20 @@ footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24p
 <div class="toast" id="toast" hidden></div>
 
 <script>
+/* Light / dark toggle */
+(function(){
+  const root=document.documentElement,btn=document.getElementById("themeBtn");
+  const SUN='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg>';
+  const MOON='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13.5 9.6A5.8 5.8 0 016.4 2.5a5.8 5.8 0 107.1 7.1z"/></svg>';
+  const cur=()=>{const t=root.getAttribute("data-theme");return t==="light"||t==="dark"?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")};
+  const paint=()=>{const dark=cur()==="dark";btn.innerHTML=(dark?SUN:MOON)+`<span>${dark?"Light mode":"Dark mode"}</span>`;btn.setAttribute("aria-label",dark?"Switch to light mode":"Switch to dark mode")};
+  try{const s=localStorage.getItem("at-theme");if(s==="light"||s==="dark")root.setAttribute("data-theme",s)}catch(e){}
+  paint();
+  btn.addEventListener("click",()=>{const next=cur()==="dark"?"light":"dark";root.classList.add("theming");root.setAttribute("data-theme",next);try{localStorage.setItem("at-theme",next)}catch(e){}paint();setTimeout(()=>root.classList.remove("theming"),400)});
+  new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:["data-theme"]});
+  try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paint)}catch(e){}
+})();
+
 const BASE="#AlphaTrucking #FreightAustralia";
 const PL={"LinkedIn":"--p-li","Instagram":"--p-ig","Facebook":"--p-fb","Pinterest":"--p-pi","Google Business":"--p-gb"};
 const posts=[
@@ -829,11 +922,13 @@ function renderCal(){
   for(let d=1;d<=days;d++){
     const ps=vis.filter(p=>p.d===d),isT=today.getFullYear()===2026&&today.getMonth()===m-1&&today.getDate()===d,ev=(EVENTS[m]||{})[d];
     const inner=`<span class="n num">${d}</span>${ev?`<span class="ev">${ev}</span>`:""}<span class="its">${ps.map(p=>`<span class="it${stepOf(p.id)===4?" done":""}"><i class="${gdot(p.grow)}"></i><span>${esc(p.title)}</span></span>`).join("")}</span>`;
-    h+=ps.length?`<button type="button" class="cell has${isT?" today":""}" data-open="${ps[0].id}" aria-label="${d} ${MONTHS[m]}: ${esc(ps.map(p=>p.title).join(", "))}">${inner}</button>`:`<div class="cell${isT?" today":""}">${inner}</div>`;
+    h+=ps.length?`<button type="button" class="cell has${isT?" today":""}" style="--i:${first+d}" data-open="${ps[0].id}" aria-label="${d} ${MONTHS[m]}: ${esc(ps.map(p=>p.title).join(", "))}">${inner}</button>`:`<div class="cell${isT?" today":""}" style="--i:${first+d}">${inner}</div>`;
   }
   const tail=(7-((first+days)%7))%7;for(let i=0;i<tail;i++)h+=`<div class="cell blank"></div>`;
-  document.getElementById("cal").innerHTML=h;
-  document.getElementById("list").innerHTML=vis.length?vis.map(p=>{const s=stepOf(p.id);return `<button type="button" class="rowbtn${s===4?" done":""}" data-open="${p.id}">
+  const calEl=document.getElementById("cal"),listEl=document.getElementById("list"),key=m+"|"+fPlat+"|"+fGrow,anim=key!==renderCal.key;renderCal.key=key;
+  calEl.innerHTML=h;
+  if(anim){[calEl,listEl].forEach(x=>{x.classList.remove("anim");void x.offsetWidth;x.classList.add("anim")})}
+  listEl.innerHTML=vis.length?vis.map((p,ix)=>{const s=stepOf(p.id);return `<button type="button" class="rowbtn${s===4?" done":""}" style="--i:${ix}" data-open="${p.id}">
     <span class="dt"><b class="num">${p.d}</b><small>${wd(dateOf(p))}</small></span>
     <span class="tx"><strong>${esc(p.title)}</strong><span class="meta">${times(p).map(([x,t])=>`<span class="tchip"><i style="background:var(${PL[x]})"></i>${x==="Google Business"?"Google":x} ${t}</span>`).join("")}</span></span>
     <span class="end"><span class="pill g-${p.grow}"><i></i>${p.grow}</span><span class="stchip s${s}">${STEPS[s][0]}</span><span class="chev" aria-hidden="true">›</span></span></button>`}).join(""):`<div class="empty">No posts match these filters.</div>`;
@@ -867,7 +962,15 @@ document.addEventListener("click",e=>{
     if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>toast("Caption copied"),fb);else fb();}
 });
 document.getElementById("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")e.target.close()});
-document.addEventListener("click",e=>{const b=e.target.closest("[data-step]");if(!b)return;const n=+b.dataset.step;setStep(b.dataset.id,n);toast(`Marked as ${STEPS[n][0]}`)});
+function burst(x,y){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cols=["--s1","--s2","--s3","--s4","--s5","--high"];
+  for(let i=0;i<16;i++){const a=i/16*Math.PI*2,r=50+Math.random()*40,el=document.createElement("span");el.className="burst";
+    el.style.left=x-4+"px";el.style.top=y-4+"px";el.style.background=`var(${cols[i%cols.length]})`;
+    el.style.setProperty("--dx",Math.cos(a)*r+"px");el.style.setProperty("--dy",Math.sin(a)*r+"px");
+    (document.getElementById("sheet").open?document.getElementById("sheet"):document.body).appendChild(el);setTimeout(()=>el.remove(),900)}
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-step]");if(!b)return;const n=+b.dataset.step,r=b.getBoundingClientRect();setStep(b.dataset.id,n);toast(`Marked as ${STEPS[n][0]}`);if(n===4)burst(r.left+r.width/2,r.top+r.height/2)});
 document.getElementById("navNext").onclick=()=>nextPost?openSheet(nextPost.id):document.getElementById("calendar").scrollIntoView();
 
 const up=[["Loading time-lapse Reels","Satisfying to watch and rewatched, which pushes reach."],["Heavy haulage and oversize moves","The most shared kind of trucking content."],["Driver videos and day in the life","Faces build followers and help you hire."],["How-to carousels","Saved and shared, and found in search."],["Cut-off and book-early posts","Direct buying intent. Brings quote requests."],["Customer case studies","The best LinkedIn format for leads."]];
@@ -916,13 +1019,25 @@ function delta(cur,prev,isRate){
   const cls=diff>0.05?"up":diff<-0.05?"down":"flat",arrow=cls==="up"?"▲":cls==="down"?"▼":"●";
   return `<span class="dl ${cls}">${arrow} ${Math.abs(diff).toFixed(1)}${isRate?" pts":"%"} vs last month</span>`;
 }
+const calm=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+const kpiLast=[];
+function countUp(k){
+  k.forEach((x,ix)=>{
+    const el=document.querySelector(`#kpis .vl[data-ix="${ix}"]`),to=x[1],from=kpiLast[ix];kpiLast[ix]=to;
+    if(!el||to==null||calm()||from===to)return;
+    const start=from==null?0:from,t0=performance.now(),dur=900;
+    const step=t=>{const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);el.textContent=x[4](start+(to-start)*e);if(p<1)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
+  });
+}
 function renderKpis(){
   const {d,ex}=ds(),i=MK.indexOf(aMonth),prev=i>0?MK[i-1]:null;
   const k=[["Followers",tot(d,aMonth,"followers"),prev&&tot(d,prev,"followers"),false,fmtN],
            ["Reach",tot(d,aMonth,"reach"),prev&&tot(d,prev,"reach"),false,fmtN],
            ["Engagement rate",rate(d,aMonth),prev&&rate(d,prev),true,v=>v==null?"—":v.toFixed(1)+"%"],
            ["Leads",tot(d,aMonth,"leads"),prev&&tot(d,prev,"leads"),false,fmtN]];
-  document.getElementById("kpis").innerHTML=k.map(x=>`<div class="kpi"><span class="lb">${x[0]} · ${MS[aMonth]}</span><span class="vl">${x[4](x[1])}</span>${x[1]==null?`<span class="dl flat">${ex?"No example for this month":"Not entered yet"}</span>`:delta(x[1],x[2]||null,x[3])}</div>`).join("");
+  document.getElementById("kpis").innerHTML=k.map((x,ix)=>`<div class="kpi"><span class="lb">${x[0]} · ${MS[aMonth]}</span><span class="vl" data-ix="${ix}">${x[4](x[1])}</span>${x[1]==null?`<span class="dl flat">${ex?"No example for this month":"Not entered yet"}</span>`:delta(x[1],x[2]||null,x[3])}</div>`).join("");
+  countUp(k);
   const n=d[aMonth]&&d[aMonth].notes;
   document.getElementById("notesOut").innerHTML=n?`<div class="notesOut"><b>What worked in ${ML[aMonth]}</b>${esc(n)}</div>`:"";
 }
@@ -944,8 +1059,8 @@ function lineChart(){
   series.forEach(p=>{
     const pts=ms.map((m,i)=>[i,pv(d,m,p,"followers")]).filter(q=>q[1]!=null);
     if(!pts.length)return;
-    lines+=`<path d="${pts.map((q,j)=>(j?"L":"M")+x(q[0]).toFixed(1)+" "+y(q[1]).toFixed(1)).join(" ")}" fill="none" stroke="${css(SC[p])}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    pts.forEach(q=>dots+=`<circle cx="${x(q[0])}" cy="${y(q[1])}" r="4" fill="${css(SC[p])}" stroke="var(--surface)" stroke-width="2"/>`);
+    lines+=`<path class="ln" pathLength="1" d="${pts.map((q,j)=>(j?"L":"M")+x(q[0]).toFixed(1)+" "+y(q[1]).toFixed(1)).join(" ")}" fill="none" stroke="${css(SC[p])}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach(q=>dots+=`<circle class="pt" cx="${x(q[0])}" cy="${y(q[1])}" r="4" fill="${css(SC[p])}" stroke="var(--surface)" stroke-width="2"/>`);
     const last=pts[pts.length-1];labels.push({p,x:x(last[0]),y:y(last[1]),v:last[1]});
   });
   labels.sort((a,b)=>a.y-b.y);for(let i=1;i<labels.length;i++)if(labels[i].y-labels[i-1].y<15)labels[i].y=labels[i-1].y+15;
@@ -969,7 +1084,7 @@ function barChart(id,field,label){
   let g="";for(let t=0;t<=4;t++){const v=max*t/4,yy=y(v);g+=`<line x1="${L}" x2="${L+iw}" y1="${yy}" y2="${yy}" stroke="var(${t?"--grid":"--axis"})"/><text x="${L-6}" y="${yy+4}" text-anchor="end" class="num">${fmtN(v)}</text>`}
   let bars="";
   ms.forEach((m,i)=>{const v=tot(d,m,field),cx=L+bandW*i+bandW/2,x0=cx-bw/2,yy=y(v),h=T+ih-yy,r=Math.min(4,h);
-    bars+=`<path d="M${x0} ${T+ih}V${yy+r}Q${x0} ${yy} ${x0+r} ${yy}H${x0+bw-r}Q${x0+bw} ${yy} ${x0+bw} ${yy+r}V${T+ih}Z" fill="var(--s1)"/>`;
+    bars+=`<path class="bar" style="--i:${i}" d="M${x0} ${T+ih}V${yy+r}Q${x0} ${yy} ${x0+r} ${yy}H${x0+bw-r}Q${x0+bw} ${yy} ${x0+bw} ${yy+r}V${T+ih}Z" fill="var(--s1)"/>`;
     if(i===ms.length-1)bars+=`<text x="${cx}" y="${yy-6}" text-anchor="middle" class="val">${fmtN(v)}</text>`;
     bars+=`<text x="${cx}" y="${H-8}" text-anchor="middle">${MS[m]}</text><rect x="${cx-bandW/2}" y="${T}" width="${bandW}" height="${ih}" fill="transparent" data-i="${i}" tabindex="0" aria-label="${ML[m]} ${label}: ${fmtFull(v)}"/>`});
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} by month">${g}${bars}</svg><div class="tip" hidden></div>`;
