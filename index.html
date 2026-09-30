@@ -240,6 +240,52 @@ dialog::backdrop{background:rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px);ba
 .timeline b{font-size:15px;font-weight:600;color:var(--fg);display:block}
 .timeline span{font-size:14px;color:var(--muted)}
 
+/* Steps */
+.stdot{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:12px;font-weight:700;background:var(--surface-2);color:var(--muted);flex:none}
+.stdot svg{width:12px;height:12px}
+.stchip{display:inline-flex;align-items:center;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--surface-2);color:var(--muted)}
+.stchip.s1{background:var(--accent-tint);color:var(--accent)}
+.stchip.s2{background:var(--med-tint);color:var(--med-ink)}
+.stchip.s3{background:rgba(88,86,214,.14);color:var(--indigo)}
+.stchip.s4{background:var(--high-tint);color:var(--high-ink)}
+.pipe{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.pcell{background:var(--surface-2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.pcell .pn{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.pcell .pl{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);font-weight:500}
+.pcell.s4 .stdot{background:var(--high);color:#fff}
+.pcell.s3 .stdot{background:var(--indigo);color:#fff}
+@media (max-width:640px){.pipe{grid-template-columns:repeat(5,minmax(58px,1fr));overflow-x:auto}.pcell .pl{font-size:11px}.pcell .stdot{display:none}}
+.alert{background:var(--med-tint);border-radius:14px;padding:12px 16px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.alert b{color:var(--med-ink)}
+.alert .link{font-size:14px}
+.tchip{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tchip i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.rowbtn .meta{gap:4px 12px}
+.stepper{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.st{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;text-align:center;min-width:0}
+.st .nm{font-size:13px;font-weight:600}
+.st small{font-size:11px;color:var(--muted);line-height:1.25}
+.st.past .stdot{background:var(--high);color:#fff}
+.st.cur{border-color:var(--accent);background:var(--accent-tint)}
+.st.cur .stdot{background:var(--accent);color:#fff}
+@media (max-width:560px){.st small{display:none}.st{padding:8px 4px}.st .nm{font-size:11.5px}}
+.nextstep{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:15px;color:var(--muted)}
+.schrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;padding:12px 16px;border-top:1px solid var(--line);align-items:center}
+.schrow .sp{display:flex;gap:10px;align-items:flex-start;min-width:0}
+.schrow .sp>i{width:9px;height:9px;border-radius:50%;margin-top:6px;flex:none}
+.schrow b{display:block;font-size:15px}
+.schrow small{display:block;font-size:13px;color:var(--muted)}
+.schrow .tm{font-weight:600;font-size:15px;text-align:right}
+.schrow a{grid-column:1/-1;font-size:14px;color:var(--accent);text-decoration:none;padding-left:19px}
+.schrow a:hover{text-decoration:underline}
+.flow{list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.flow li{display:flex;flex-direction:column;gap:6px;min-width:0}
+.flow li::before{content:none!important;display:none!important}
+.flow .stdot{background:var(--accent);color:#fff}
+.flow b{font-size:16px;color:var(--fg)}
+.flow small{font-size:14px;color:var(--muted)}
+@media (max-width:760px){.flow{grid-template-columns:1fr}.flow li{display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:12px}.flow small{grid-column:2}}
+
 /* Analytics */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -330,12 +376,21 @@ footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24p
       <div class="tile s2"><h3>Every week</h3><ul><li>2 Reels on Instagram and Facebook</li><li>1 carousel, re-cut as a LinkedIn PDF</li><li>2 LinkedIn posts</li><li>1 Google Business post</li><li>3–5 Pinterest pins</li></ul></div>
       <div class="tile s2"><h3>Film once a week</h3><ul><li>One loading time-lapse</li><li>One truck leaving or arriving</li><li>One 20-second staff clip</li><li>5–10 clean truck photos</li></ul></div>
       <div class="tile s3"><h3>SEO in every post</h3><ul><li>Service and city keyword in the first line</li><li>Link to the service page, not the homepage</li><li>Keyword file names, like heavy-haulage-sydney.jpg</li><li>Location tag on every post</li></ul></div>
+      <div class="tile s6"><h3>From idea to live, in five steps</h3><p>Every post moves through the same steps. Mark each step in the post's brief, and the calendar shows what's stuck.</p>
+        <ol class="flow">
+          <li><span class="stdot">1</span><b>Plan</b><small>Brief is agreed. You get the 5 am reminder the day before.</small></li>
+          <li><span class="stdot">2</span><b>Create</b><small>Film or design it during the 5–9 am prep window.</small></li>
+          <li><span class="stdot">3</span><b>Ready</b><small>Media is final, caption and hashtags copied.</small></li>
+          <li><span class="stdot">4</span><b>Scheduled</b><small>Booked in Meta Business Suite, LinkedIn and Pinterest at the times shown. They publish on their own.</small></li>
+          <li><span class="stdot">5</span><b>Posted</b><small>Check it went live, reply to comments in the first hour.</small></li>
+        </ol>
+      </div>
       <div class="tile s3"><h3>Reuse everything</h3><ul><li>Reels go to Instagram, Facebook and YouTube Shorts</li><li>Carousels become LinkedIn PDFs and Pinterest pins</li><li>The best post each month becomes a blog article</li><li>Rewrite the first line for each platform</li></ul></div>
     </div>
   </section>
 
   <section id="times">
-    <div class="head"><span class="eyebrow">Posting times</span><h2 class="h2">Post when they scroll.</h2><p class="sub">All times are Sydney time. Your shift starts at 5 am, so there is time to prep before the first window.</p></div>
+    <div class="head"><span class="eyebrow">Posting times</span><h2 class="h2">Post when they scroll.</h2><p class="sub">All times are Sydney time. Each post now has its own time on each platform, set inside these windows. Your shift starts at 5 am, so there's time to prep before the first window.</p></div>
     <div class="tracks" id="tracks"></div>
   </section>
 
@@ -348,6 +403,8 @@ footer{max-width:1080px;margin-inline:auto;padding-inline:16px;padding-block:24p
     <div class="chips" id="platChips" role="group" aria-label="Platform"></div>
     <div class="calcard">
       <div class="calhead"><h3 id="calTitle"></h3><div class="stats" id="stats"></div></div>
+      <div class="pipe" id="pipe" aria-label="Posts at each step this month"></div>
+      <div id="alert"></div>
       <div class="cal" id="cal"></div>
       <div class="legend"><span><i class="dotH"></i>High growth</span><span><i class="dotM"></i>Medium</span><span><i class="dotL"></i>Low, but needed</span></div>
     </div>
@@ -700,8 +757,27 @@ const gdot=g=>g==="High"?"dotH":g==="Medium"?"dotM":"dotL";
 const pdots=ps=>`<span class="pdots">${ps.map(x=>`<i style="background:var(${PL[x]})" title="${x}"></i>`).join("")}</span>`;
 const CHECK='<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>';
 
-let done={};try{done=JSON.parse(localStorage.getItem("at-done")||"{}")}catch(e){}
-const save=()=>{try{localStorage.setItem("at-done",JSON.stringify(done))}catch(e){}};
+/* Per-platform posting time, inside each platform's best window */
+const RULE={"LinkedIn":"8:00 am","Instagram":"7:00 pm","Facebook":"12:30 pm","Pinterest":"8:30 pm","Google Business":"10:00 am"};
+const OVR={o3:{"Facebook":"7:00 am","Google Business":"7:00 am"},n1:{"Instagram":"2:30 pm","Facebook":"2:30 pm"},n3:{"Facebook":"11:00 am","LinkedIn":"11:00 am"},d5:{"Facebook":"9:00 am","Google Business":"9:00 am"}};
+const mins=t=>{const m=t.match(/(\d+):(\d+)\s*(am|pm)/);let h=+m[1]%12;if(m[3]==="pm")h+=12;return h*60+ +m[2]};
+function times(p){return p.plats.map(pl=>{const o=OVR[p.id]&&OVR[p.id][pl];let t=o||RULE[pl];if(!o&&pl==="Facebook"&&/Reel|Meme/.test(p.fmt))t="7:00 pm";return [pl,t]}).sort((a,b)=>mins(a[1])-mins(b[1]))}
+const firstTime=p=>times(p)[0][1];
+const TOOLS={"Facebook":["Meta Business Suite","https://business.facebook.com/","Planner → Create post → Schedule. Tick Instagram too if it's on both."],"Instagram":["Meta Business Suite","https://business.facebook.com/","Planner → Create post or reel → Schedule"],"LinkedIn":["LinkedIn","https://www.linkedin.com/","Start a post → clock icon → pick date and time"],"Pinterest":["Pinterest","https://www.pinterest.com/pin-creation-tool/","Create Pin → Publish at a later date"],"Google Business":["Google Business Profile","https://business.google.com/","No built-in scheduler. Post at this time, or schedule it with Buffer."]};
+
+/* Five-step process per post */
+const STEPS=[["Plan","Brief agreed","Next: film or design it"],["Create","Film or design","Next: finish the media and caption"],["Ready","Media + caption final","Next: schedule it in each app"],["Scheduled","Booked in each app","It will go live on its own. Check it after"],["Posted","Live everywhere","Done. Add its numbers at month end"]];
+let steps={},stepStore=null;
+try{steps=JSON.parse(localStorage.getItem("at-steps")||"{}")||{}}catch(e){}
+try{const old=JSON.parse(localStorage.getItem("at-done")||"{}");Object.keys(old).forEach(k=>{if(steps[k]==null)steps[k]=4})}catch(e){}
+const stepOf=id=>typeof steps[id]==="number"?steps[id]:0;
+const saveSteps=()=>{try{localStorage.setItem("at-steps",JSON.stringify(steps))}catch(e){}};
+async function setStep(id,n){
+  steps[id]=n;saveSteps();refreshAll();
+  if(stepStore){try{await stepStore.doc("status/"+id).set({step:n,updatedAt:new Date().toISOString()})}catch(err){toast(err&&err.code==="invalid_argument"?"You can view progress but not change it":"Saved on this device. Sync failed, try again")}}
+}
+function refreshAll(){renderCal();renderUpNext();const d=document.getElementById("sheet");if(d.open&&d.dataset.id)openSheet(d.dataset.id)}
+const STEP_ICON=i=>i===4?CHECK:String(i+1);
 const today=new Date();today.setHours(0,0,0,0);
 const sorted=[...posts].sort((a,b)=>dateOf(a)-dateOf(b));
 const nextPost=sorted.find(p=>dateOf(p)>=today);
@@ -713,8 +789,9 @@ function renderUpNext(){
   if(!nextPost){el.innerHTML=`<div style="grid-column:1/-1"><h3>The 2026 calendar is complete.</h3><p>Time to plan 2027.</p></div>`;return}
   const p=nextPost,dt=dateOf(p);
   el.innerHTML=`<div class="dateTile"><div class="mo">${MONTHS[p.m].slice(0,3)}</div><div class="dd num">${p.d}</div><div class="wd">${wd(dt)}</div></div>
-  <div><div class="when">Up next · ${rel(p)} at ${p.time}</div><h3>${esc(p.title)}</h3><p>${esc(p.make)}</p>
-  <div class="row"><span class="pill g-${p.grow}"><i></i>${p.grow} growth</span>${p.plats.map(x=>`<span class="pill plat">${x}</span>`).join("")}</div>
+  <div><div class="when">Up next · ${rel(p)} from ${firstTime(p)}</div><h3>${esc(p.title)}</h3><p>${esc(p.make)}</p>
+  <div class="row">${times(p).map(([x,t])=>`<span class="pill plat"><i style="background:var(${PL[x]})"></i>${x} · ${t}</span>`).join("")}</div>
+  <div class="row"><span class="stchip s${stepOf(p.id)}">Step ${stepOf(p.id)+1} of 5 · ${STEPS[stepOf(p.id)][0]}</span><span class="hint">${STEPS[stepOf(p.id)][2]}</span></div>
   <div class="row"><button class="btn" type="button" data-open="${p.id}">Open brief</button><span class="bell"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 11V7a4 4 0 118 0v4l1 1.5H3L4 11z"/><path d="M6.5 14a1.5 1.5 0 003 0"/></svg>Reminder at 5:00 am the day before</span></div></div>`;
 }
 function renderTracks(){
@@ -743,36 +820,42 @@ function renderCal(){
   const m=month,first=(new Date(2026,m-1,1).getDay()+6)%7,days=new Date(2026,m,0).getDate();
   const mp=posts.filter(p=>p.m===m),vis=mp.filter(match);
   document.getElementById("calTitle").textContent=MONTHS[m]+" 2026";
-  document.getElementById("stats").innerHTML=`<span><b class="num">${mp.length}</b> posts</span><span><b class="num">${mp.filter(p=>p.grow==="High").length}</b> high growth</span><span><b class="num">${mp.filter(p=>done[p.id]).length}</b> posted</span>`;
+  document.getElementById("stats").innerHTML=`<span><b class="num">${mp.length}</b> posts</span><span><b class="num">${mp.filter(p=>p.grow==="High").length}</b> high growth</span><span><b class="num">${mp.filter(p=>stepOf(p.id)===4).length}</b> posted</span>`;
+  document.getElementById("pipe").innerHTML=STEPS.map((s,i)=>`<div class="pcell s${i}"><span class="pn num">${mp.filter(p=>stepOf(p.id)===i).length}</span><span class="pl"><span class="stdot">${STEP_ICON(i)}</span>${s[0]}</span></div>`).join("");
+  const soon=sorted.filter(p=>{const n=(dateOf(p)-today)/864e5;return n>=0&&n<=2&&stepOf(p.id)<3});
+  document.getElementById("alert").innerHTML=soon.length?`<div class="alert"><b>${soon.length} post${soon.length>1?"s":""} due in the next 2 days ${soon.length>1?"aren't":"isn't"} scheduled yet.</b> ${soon.map(p=>`<button type="button" class="link" data-open="${p.id}">${esc(p.title)}</button>`).join(" ")}</div>`:"";
   let h=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div class="dow">${d}</div>`).join("");
   for(let i=0;i<first;i++)h+=`<div class="cell blank"></div>`;
   for(let d=1;d<=days;d++){
     const ps=vis.filter(p=>p.d===d),isT=today.getFullYear()===2026&&today.getMonth()===m-1&&today.getDate()===d,ev=(EVENTS[m]||{})[d];
-    const inner=`<span class="n num">${d}</span>${ev?`<span class="ev">${ev}</span>`:""}<span class="its">${ps.map(p=>`<span class="it${done[p.id]?" done":""}"><i class="${gdot(p.grow)}"></i><span>${esc(p.title)}</span></span>`).join("")}</span>`;
+    const inner=`<span class="n num">${d}</span>${ev?`<span class="ev">${ev}</span>`:""}<span class="its">${ps.map(p=>`<span class="it${stepOf(p.id)===4?" done":""}"><i class="${gdot(p.grow)}"></i><span>${esc(p.title)}</span></span>`).join("")}</span>`;
     h+=ps.length?`<button type="button" class="cell has${isT?" today":""}" data-open="${ps[0].id}" aria-label="${d} ${MONTHS[m]}: ${esc(ps.map(p=>p.title).join(", "))}">${inner}</button>`:`<div class="cell${isT?" today":""}">${inner}</div>`;
   }
   const tail=(7-((first+days)%7))%7;for(let i=0;i<tail;i++)h+=`<div class="cell blank"></div>`;
   document.getElementById("cal").innerHTML=h;
-  document.getElementById("list").innerHTML=vis.length?vis.map(p=>`<button type="button" class="rowbtn${done[p.id]?" done":""}" data-open="${p.id}">
+  document.getElementById("list").innerHTML=vis.length?vis.map(p=>{const s=stepOf(p.id);return `<button type="button" class="rowbtn${s===4?" done":""}" data-open="${p.id}">
     <span class="dt"><b class="num">${p.d}</b><small>${wd(dateOf(p))}</small></span>
-    <span class="tx"><strong>${esc(p.title)}</strong><span class="meta">${pdots(p.plats)}<span>${p.time}</span><span>·</span><span>${esc(p.fmt)}</span></span></span>
-    <span class="end"><span class="pill g-${p.grow}"><i></i>${p.grow}</span><span class="check${done[p.id]?" on":""}">${done[p.id]?CHECK:""}</span><span class="chev" aria-hidden="true">›</span></span></button>`).join(""):`<div class="empty">No posts match these filters.</div>`;
+    <span class="tx"><strong>${esc(p.title)}</strong><span class="meta">${times(p).map(([x,t])=>`<span class="tchip"><i style="background:var(${PL[x]})"></i>${x==="Google Business"?"Google":x} ${t}</span>`).join("")}</span></span>
+    <span class="end"><span class="pill g-${p.grow}"><i></i>${p.grow}</span><span class="stchip s${s}">${STEPS[s][0]}</span><span class="chev" aria-hidden="true">›</span></span></button>`}).join(""):`<div class="empty">No posts match these filters.</div>`;
 }
 function openSheet(id){
-  const p=posts.find(x=>x.id===id);if(!p)return;const dt=dateOf(p);
+  const p=posts.find(x=>x.id===id);if(!p)return;const dt=dateOf(p),cur=stepOf(p.id);
+  const keep=document.querySelector(".sheet-body"),scroll=keep&&document.getElementById("sheet").open&&document.getElementById("sheet").dataset.id===id?keep.scrollTop:0;
+  setTimeout(()=>{const b=document.querySelector(".sheet-body");if(b)b.scrollTop=scroll},0);
   const f=(l,v,c="")=>`<div class="field"><label>${l}</label><div class="${c}">${esc(v)}</div></div>`;
   document.getElementById("sheetInner").innerHTML=`
   <div class="sheet-top"><span class="pill g-${p.grow}"><i></i>${p.grow} growth</span><button class="x" type="button" data-close aria-label="Close">✕</button></div>
   <div class="sheet-body">
-    <div><div class="kicker">${wd(dt)} ${p.d} ${MONTHS[p.m]} · ${p.time}</div><h2 id="sheetTitle" style="margin-top:6px">${esc(p.title)}</h2>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">${p.plats.map(x=>`<span class="pill plat"><i style="background:var(${PL[x]})"></i>${x}</span>`).join("")}<span class="pill plat">${esc(p.fmt)}</span></div></div>
+    <div><div class="kicker">${wd(dt)} ${p.d} ${MONTHS[p.m]} · ${esc(p.fmt)}</div><h2 id="sheetTitle" style="margin-top:6px">${esc(p.title)}</h2></div>
+    <div class="stepper" role="group" aria-label="Progress">${STEPS.map((s,i)=>`<button type="button" class="st${i<cur?" past":""}${i===cur?" cur":""}" data-step="${i}" data-id="${p.id}" aria-pressed="${i===cur}"><span class="stdot">${i<cur?CHECK:STEP_ICON(i)}</span><span class="nm">${s[0]}</span><small>${s[1]}</small></button>`).join("")}</div>
+    <div class="nextstep"><span>${STEPS[cur][2]}</span>${cur<4?`<button class="btn" type="button" data-step="${cur+1}" data-id="${p.id}">Mark as ${STEPS[cur+1][0]}</button>`:""}</div>
+    <div class="fieldset"><div class="field"><label>Schedule it · Sydney time</label></div>${times(p).map(([pl,t])=>`<div class="schrow"><span class="sp"><i style="background:var(${PL[pl]})"></i><span><b>${pl}</b><small>${TOOLS[pl][2]}</small></span></span><span class="tm num">${wd(dt)} ${p.d} ${MONTHS[p.m].slice(0,3)} · ${t}</span><a href="${TOOLS[pl][1]}" target="_blank" rel="noopener">Open ${TOOLS[pl][0]} ↗</a></div>`).join("")}</div>
     <div class="fieldset">${f("What to make",p.make)}${f("Goal",p.goal)}${f("Grows or not",p.grow+". "+p.why)}</div>
     <div class="fieldset">${f("Caption",p.caption)}${f("Hashtags",p.tags,"tags")}</div>
     <div class="fieldset">${f("SEO description",p.seo)}${f("Keywords",p.kw)}</div>
-    <div class="actions"><button class="btn" type="button" data-copy="${p.id}">Copy caption</button>
-    <label class="switch"><input type="checkbox" id="sw-${p.id}" data-done="${p.id}" ${done[p.id]?"checked":""}>Posted</label></div>
+    <div class="actions"><button class="btn ghost" type="button" data-copy="${p.id}">Copy caption + hashtags</button></div>
   </div>`;
-  const d=document.getElementById("sheet");if(!d.open)d.showModal();
+  const d=document.getElementById("sheet");d.dataset.id=p.id;if(!d.open)d.showModal();
 }
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,1600)}
 document.addEventListener("click",e=>{
@@ -784,7 +867,7 @@ document.addEventListener("click",e=>{
     if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>toast("Caption copied"),fb);else fb();}
 });
 document.getElementById("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")e.target.close()});
-document.addEventListener("change",e=>{const id=e.target.dataset&&e.target.dataset.done;if(!id)return;if(e.target.checked)done[id]=1;else delete done[id];save();renderCal();toast(e.target.checked?"Marked as posted":"Marked as not posted")});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-step]");if(!b)return;const n=+b.dataset.step;setStep(b.dataset.id,n);toast(`Marked as ${STEPS[n][0]}`)});
 document.getElementById("navNext").onclick=()=>nextPost?openSheet(nextPost.id):document.getElementById("calendar").scrollIntoView();
 
 const up=[["Loading time-lapse Reels","Satisfying to watch and rewatched, which pushes reach."],["Heavy haulage and oversize moves","The most shared kind of trucking content."],["Driver videos and day in the life","Faces build followers and help you hire."],["How-to carousels","Saved and shared, and found in search."],["Cut-off and book-early posts","Direct buying intent. Brings quote requests."],["Customer case studies","The best LinkedIn format for leads."]];
@@ -936,7 +1019,8 @@ document.getElementById("entry").addEventListener("submit",async e=>{
 fillForm();renderAnalytics();
 (async()=>{
   let db=null;try{db=window.claude&&window.claude.use?await window.claude.use("db"):null}catch(_){db=null}
-  if(db){store=db;mode="db";
+  if(db){store=db;mode="db";stepStore=db;
+    db.collection("status").onSnapshot(s=>{s.docs.forEach(x=>{const v=x.exists&&x.data();if(v&&typeof v.step==="number")steps[x.id]=v.step});saveSteps();refreshAll()},()=>{});
     db.collection("metrics").onSnapshot(s=>{metrics={};s.docs.forEach(x=>{if(x.exists&&MS[x.id])metrics[x.id]=x.data()});renderAnalytics();if(!dirty)fillForm()},
       ()=>{document.getElementById("aStatus").textContent="Live sync stopped. Reload the page to reconnect."});
   }else{mode="local";try{metrics=JSON.parse(localStorage.getItem("at-metrics")||"{}")||{}}catch(_){metrics={}}renderAnalytics();fillForm()}
